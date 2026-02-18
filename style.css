@@ -1,0 +1,25 @@
+@import url (´https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet´)
+:root {
+	--bg: #08080d;
+	--bg-surface: #0b0b13;
+	--bg-elevated: #101018;
+	--blue-cold: #4a7c9bb;
+	--blue-glow: #5ba0c0;
+	--blue-dim: #1e3a4d;
+	--blue-accent: #7ec8e3;
+	--green-term: #4af626;
+	--text-primary: #b8c4cc;
+	--text-dim #5a6872;
+	--text-muted: #3a4248;
+}
+
+*, *::before, *::after {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	font-family: ´IBM Plex Mono´, monospace;
+		
+}
