@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GEN X SOFT CLUB — AESTHETIC GUIDE</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Outfit:wght@200;400;700&family=Silkscreen:wght@400;700&display=swap');
+
+  :root {
+    --crt-blue: #3a7bd5;
+    --led-blue: #0066ff;
+    --cold-blue: #1a2a4a;
+    --terminal-green: #39ff14;
+    --warm-amber: #ff9500;
+    --disc-silver: #c0c0c8;
+    --deep-black: #0a0a0f;
+    --panel-dark: #111118;
+    --panel-mid: #1a1a24;
+    --scan-line: rgba(255,255,255,0.03);
+    --noise-opacity: 0.04;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--deep-black);
+    color: #c8c8d0;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 200;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  /* CRT scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.15) 2px,
+      rgba(0,0,0,0.15) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+    animation: scanFlicker 8s infinite;
+  }
+
+  /* Noise texture overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    opacity: var(--noise-opacity);
+    pointer-events: none;
+    z-index: 9998;
+    animation: noiseShift 0.5s steps(5) infinite;
+  }
+
+  @keyframes scanFlicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.97; }
+    52% { opacity: 1; }
+    80% { opacity: 0.98; }
+  }
+
+  @keyframes noiseShift {
+    0% { transform: translate(0,0); }
+    20% { transform: translate(-5%,-5%); }
+    40% { transform: translate(3%,2%); }
+    60% { transform: translate(-2%,4%); }
+    80% { transform: translate(4%,-3%); }
+    100% { transform: translate(0,0); }
+  }
+
+  @keyframes glowPulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes textGlitch {
+    0%, 100% { transform: translate(0); }
+    20% { transform: translate(-2px, 1px); }
+    40% { transform: translate(2px, -1px); }
+    60% { transform: translate(-1px, -1px); }
+    80% { transform: translate(1px, 2px); }
+  }
+
+  @keyframes terminalBlink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+
+  @keyframes discSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes horizontalScan {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100vh); }
+  }
+
+  /* === HEADER === */
+  .header {
+    position: relative;
+    padding: 80px 40px 60px;
+    border-bottom: 1px solid rgba(58,123,213,0.15);
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: radial-gradient(ellipse at 20% 50%, rgba(0,102,255,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(57,255,20,0.03) 0%, transparent 40%);
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 40px;
+    position: relative;
+  }
+
+  .logo-area {
+    animation: fadeSlideUp 0.8s ease-out;
+  }
+
+  .logo-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--terminal-green);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    opacity: 0.7;
+  }
+
+  .logo-main {
+    font-family: 'Silkscreen', monospace;
+    font-size: clamp(28px, 5vw, 52px);
+    color: #fff;
+    letter-spacing: -1px;
+    text-shadow: 0 0 40px rgba(0,102,255,0.4), 0 0 80px rgba(0,102,255,0.15);
+    line-height: 1.1;
+  }
+
+  .logo-main span {
+    color: var(--led-blue);
+  }
+
+  .logo-sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 6px;
+    color: var(--disc-silver);
+    margin-top: 12px;
+    opacity: 0.5;
+    text-transform: uppercase;
+  }
+
+  .status-block {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    text-align: right;
+    color: rgba(200,200,208,0.4);
+    line-height: 1.8;
+    animation: fadeSlideUp 0.8s ease-out 0.2s both;
+  }
+
+  .status-block .online {
+    color: var(--terminal-green);
+    animation: glowPulse 2s infinite;
+  }
+
+  /* === MAIN GRID === */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: rgba(58,123,213,0.08);
+    border-bottom: 1px solid rgba(58,123,213,0.08);
+  }
+
+  .cell {
+    background: var(--panel-dark);
+    padding: 48px 40px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeSlideUp 0.6s ease-out both;
+  }
+
+  .cell:nth-child(1) { animation-delay: 0.1s; }
+  .cell:nth-child(2) { animation-delay: 0.2s; }
+  .cell:nth-child(3) { animation-delay: 0.3s; }
+  .cell:nth-child(4) { animation-delay: 0.4s; }
+  .cell:nth-child(5) { animation-delay: 0.5s; }
+  .cell:nth-child(6) { animation-delay: 0.6s; }
+
+  .cell::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,102,255,0.3), transparent);
+  }
+
+  .cell:hover {
+    background: var(--panel-mid);
+  }
+
+  .cell-number {
+    font-family: 'Silkscreen', monospace;
+    font-size: 9px;
+    color: var(--led-blue);
+    opacity: 0.4;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+  }
+
+  .cell-title {
+    font-family: 'Silkscreen', monospace;
+    font-size: clamp(14px, 2vw, 18px);
+    color: #fff;
+    margin-bottom: 16px;
+    letter-spacing: 1px;
+  }
+
+  .cell-desc {
+    font-size: 13px;
+    line-height: 1.8;
+    color: rgba(200,200,208,0.6);
+    max-width: 480px;
+  }
+
+  .cell-desc strong {
+    color: var(--disc-silver);
+    font-weight: 400;
+  }
+
+  /* Tag pills */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 20px;
+  }
+
+  .tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 4px 10px;
+    border: 1px solid rgba(58,123,213,0.2);
+    color: rgba(200,200,208,0.5);
+    text-transform: uppercase;
+    transition: all 0.3s;
+  }
+
+  .tag:hover {
+    border-color: var(--led-blue);
+    color: var(--led-blue);
+    box-shadow: 0 0 12px rgba(0,102,255,0.15);
+  }
+
+  .tag.green { border-color: rgba(57,255,20,0.2); }
+  .tag.green:hover { border-color: var(--terminal-green); color: var(--terminal-green); box-shadow: 0 0 12px rgba(57,255,20,0.15); }
+  .tag.amber { border-color: rgba(255,149,0,0.2); }
+  .tag.amber:hover { border-color: var(--warm-amber); color: var(--warm-amber); box-shadow: 0 0 12px rgba(255,149,0,0.15); }
+
+  /* === FULL WIDTH SECTIONS === */
+  .full-section {
+    grid-column: 1 / -1;
+    background: var(--deep-black);
+    padding: 60px 40px;
+    position: relative;
+  }
+
+  .full-section::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 40px; right: 40px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,102,255,0.15), transparent);
+  }
+
+  /* === DISC SPINNER === */
+  .disc-container {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+    padding: 20px 0;
+  }
+
+  .disc {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      #1a1a24, #2a2a38, #1a1a24, #2a2a38,
+      #1a1a24, #2a2a38, #1a1a24, #2a2a38
+    );
+    position: relative;
+    animation: discSpin 4s linear infinite;
+    flex-shrink: 0;
+    box-shadow: 0 0 40px rgba(0,102,255,0.1), inset 0 0 30px rgba(0,0,0,0.5);
+  }
+
+  .disc::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--deep-black);
+    border: 2px solid rgba(58,123,213,0.2);
+  }
+
+  .disc::after {
+    content: '';
+    position: absolute;
+    top: 10%; left: 10%;
+    width: 80%; height: 80%;
+    border-radius: 50%;
+    border: 1px solid rgba(192,192,200,0.05);
+  }
+
+  .disc-info {
+    flex: 1;
+  }
+
+  .disc-info h3 {
+    font-family: 'Silkscreen', monospace;
+    font-size: 13px;
+    color: var(--warm-amber);
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+  }
+
+  .disc-info p {
+    font-size: 13px;
+    line-height: 1.9;
+    color: rgba(200,200,208,0.5);
+  }
+
+  /* === TERMINAL BLOCK === */
+  .terminal {
+    background: rgba(0,0,0,0.6);
+    border: 1px solid rgba(57,255,20,0.1);
+    padding: 24px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    line-height: 1.9;
+    color: var(--terminal-green);
+    margin-top: 24px;
+    position: relative;
+    overflow: hidden;
+    max-width: 700px;
+  }
+
+  .terminal::before {
+    content: '● ○ ○';
+    display: block;
+    font-size: 10px;
+    color: rgba(57,255,20,0.3);
+    margin-bottom: 16px;
+    letter-spacing: 4px;
+  }
+
+  .terminal .line { opacity: 0.7; }
+  .terminal .line.bright { opacity: 1; }
+  .terminal .comment { color: rgba(57,255,20,0.3); }
+  .terminal .cursor {
+    display: inline-block;
+    width: 7px;
+    height: 13px;
+    background: var(--terminal-green);
+    animation: terminalBlink 1s steps(1) infinite;
+    vertical-align: middle;
+    margin-left: 2px;
+  }
+
+  /* === INVENTORY GRID === */
+  .inventory-title {
+    font-family: 'Silkscreen', monospace;
+    font-size: 11px;
+    color: var(--led-blue);
+    letter-spacing: 3px;
+    margin-bottom: 32px;
+    text-transform: uppercase;
+  }
+
+  .inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1px;
+    background: rgba(58,123,213,0.05);
+  }
+
+  .inv-item {
+    background: var(--panel-dark);
+    padding: 20px;
+    transition: all 0.3s;
+    position: relative;
+  }
+
+  .inv-item:hover {
+    background: var(--panel-mid);
+    box-shadow: inset 0 0 30px rgba(0,102,255,0.05);
+  }
+
+  .inv-icon {
+    font-size: 22px;
+    margin-bottom: 10px;
+    filter: grayscale(0.3);
+  }
+
+  .inv-name {
+    font-family: 'Silkscreen', monospace;
+    font-size: 9px;
+    color: var(--disc-silver);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .inv-detail {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: rgba(200,200,208,0.3);
+  }
+
+  /* === VIBES SECTION === */
+  .vibe-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+  }
+
+  .vibe-card {
+    padding: 24px;
+    border: 1px solid rgba(58,123,213,0.08);
+    background: rgba(17,17,24,0.6);
+    transition: all 0.4s;
+  }
+
+  .vibe-card:hover {
+    border-color: rgba(0,102,255,0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+
+  .vibe-card h4 {
+    font-family: 'Silkscreen', monospace;
+    font-size: 10px;
+    color: var(--led-blue);
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  .vibe-card p {
+    font-size: 12px;
+    line-height: 1.8;
+    color: rgba(200,200,208,0.45);
+  }
+
+  /* === PLAYLIST SECTION === */
+  .playlist {
+    margin-top: 24px;
+  }
+
+  .track {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(58,123,213,0.05);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    transition: all 0.2s;
+  }
+
+  .track:hover {
+    padding-left: 8px;
+    border-bottom-color: rgba(0,102,255,0.15);
+  }
+
+  .track-num {
+    width: 30px;
+    color: rgba(200,200,208,0.2);
+  }
+
+  .track-title {
+    flex: 1;
+    color: rgba(200,200,208,0.6);
+  }
+
+  .track-artist {
+    color: rgba(200,200,208,0.3);
+    text-align: right;
+  }
+
+  .track:hover .track-title { color: var(--disc-silver); }
+  .track:hover .track-num { color: var(--warm-amber); }
+
+  /* === FOOTER === */
+  .footer {
+    padding: 48px 40px;
+    border-top: 1px solid rgba(58,123,213,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: rgba(200,200,208,0.2);
+    letter-spacing: 2px;
+  }
+
+  .footer-ascii {
+    white-space: pre;
+    line-height: 1.2;
+    color: rgba(0,102,255,0.15);
+    font-size: 8px;
+  }
+
+  /* === LED GLOW ACCENTS === */
+  .led-dot {
+    display: inline-block;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--led-blue);
+    box-shadow: 0 0 6px var(--led-blue), 0 0 12px rgba(0,102,255,0.3);
+    animation: glowPulse 3s infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  .led-dot.green { background: var(--terminal-green); box-shadow: 0 0 6px var(--terminal-green); }
+  .led-dot.amber { background: var(--warm-amber); box-shadow: 0 0 6px var(--warm-amber); }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .main-grid { grid-template-columns: 1fr; }
+    .header { padding: 40px 20px 30px; }
+    .cell, .full-section { padding: 32px 20px; }
+    .disc-container { flex-direction: column; gap: 24px; }
+    .disc { width: 100px; height: 100px; }
+    .header-top { flex-direction: column; gap: 20px; }
+    .status-block { text-align: left; }
+    .footer { flex-direction: column; gap: 20px; }
+  }
+
+  /* Horizontal scanning light */
+  .scan-bar {
+    position: fixed;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(0,102,255,0.15), transparent);
+    animation: horizontalScan 6s linear infinite;
+    pointer-events: none;
+    z-index: 9997;
+  }
+</style>
+</head>
+<body>
+
+<div class="scan-bar"></div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-top">
+    <div class="logo-area">
+      <div class="logo-tag">aesthetic.db // revision 2.7</div>
+      <div class="logo-main">GEN X <span>SOFT</span> CLUB</div>
+      <div class="logo-sub">Y2K Futurism &mdash; Older Brother Core &mdash; Physical Media</div>
+    </div>
+    <div class="status-block">
+      <span class="online">● ONLINE</span><br>
+      SESSION: 0x7F3A<br>
+      ARCH LINUX 6.7.4<br>
+      UPTIME: 47d 13h 22m<br>
+      TEMP: 42°C / FANS: 1200RPM<br>
+      CDs RIPPED: 2,847
+    </div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT GRID -->
+<div class="main-grid">
+
+  <!-- CELL 1: IDENTIDADE -->
+  <div class="cell">
+    <div class="cell-number">001 — IDENTIDADE</div>
+    <div class="cell-title">O que é essa estética?</div>
+    <div class="cell-desc">
+      É a nostalgia de quem cresceu entre <strong>2000 e 2010</strong>, rodeado de CDs empilhados, cabos RCA, e o cheiro de plástico quente de um PlayStation 2 ligado há 8 horas. É o <strong>irmão mais velho</strong> que tinha um quarto escuro com luz de LED azul, um PC montado em casa, e te mostrou Linkin Park, Daft Punk e The Prodigy. É cyberpunk sem o neon exagerado — é a versão <strong>real, vivida, com fio desencapado</strong>.
+    </div>
+    <div class="tags">
+      <span class="tag">Y2K Futurism</span>
+      <span class="tag">Older Brother Core</span>
+      <span class="tag green">Cyberpunk Real</span>
+      <span class="tag">Gen X Soft Club</span>
+    </div>
+  </div>
+
+  <!-- CELL 2: PRINCIPIOS -->
+  <div class="cell">
+    <div class="cell-number">002 — PRINCÍPIOS</div>
+    <div class="cell-title">Mídia física acima de tudo</div>
+    <div class="cell-desc">
+      Streaming é conveniente. Mas não tem <strong>alma</strong>. Essa estética prioriza o que você pode tocar: o peso de um CD na mão, o click de um cartucho de GBA entrando no slot, o disco girando dentro do PS1 com a tampa aberta. Você não "acessa" mídia — você <strong>possui</strong> ela. Prateleiras cheias, jewel cases rachados, discos com arranhão que ainda tocam.
+    </div>
+    <div class="tags">
+      <span class="tag amber">CD</span>
+      <span class="tag amber">MiniDisc</span>
+      <span class="tag amber">Cartucho</span>
+      <span class="tag amber">Disco</span>
+      <span class="tag amber">Fita VHS</span>
+    </div>
+  </div>
+
+  <!-- CELL 3: SETUP -->
+  <div class="cell">
+    <div class="cell-number">003 — O SETUP</div>
+    <div class="cell-title">A mesa sagrada</div>
+    <div class="cell-desc">
+      Dois monitores no mínimo. Um CRT de 17" pro charme, um widescreen pro trabalho. Notebook aberto do lado rodando <strong>htop</strong> no Arch. Teclado mecânico com switches barulhentos. Fios saindo de tudo — USB, P2, RCA, ethernet cat5e. Café frio na caneca que ninguém lava. <strong>LED azul</strong> vindo de algum lugar — do roteador, do servidor, do cooler do gabinete. Um HD externo sempre conectado fazendo backup de algo.
+    </div>
+    <div class="tags">
+      <span class="tag">CRT Monitor</span>
+      <span class="tag">Dual Screen</span>
+      <span class="tag green">Arch Linux</span>
+      <span class="tag">Mech Keyboard</span>
+      <span class="tag">Home Server</span>
+    </div>
+  </div>
+
+  <!-- CELL 4: TECH -->
+  <div class="cell">
+    <div class="cell-number">004 — TECH STACK</div>
+    <div class="cell-title">Hardware com história</div>
+    <div class="cell-desc">
+      <strong>Sony Cyber-shot DSC-W800</strong> no bolso. <strong>PSP</strong> com custom firmware e ISOs na pasta. <strong>Nintendo 3DS</strong> ainda ligando. Um <strong>iPod Classic</strong> de 160GB com a biblioteca inteira em FLAC. Gabinete bege dos anos 2000 com drive de CD/DVD e leitor de disquete. Toca-discos conectado num amplificador velho. O celular é só pra emergência — o que importa é o que roda <strong>offline</strong>.
+    </div>
+    <div class="tags">
+      <span class="tag">PSP</span>
+      <span class="tag">3DS</span>
+      <span class="tag">Cyber-shot</span>
+      <span class="tag">iPod Classic</span>
+      <span class="tag">Toca-discos</span>
+      <span class="tag">Gabinete Bege</span>
+    </div>
+  </div>
+
+  <!-- FULL WIDTH: DISC SPINNER -->
+  <div class="cell full-section" style="animation-delay: 0.4s;">
+    <div class="cell-number">005 — O SOM DO DISCO</div>
+    <div class="disc-container">
+      <div class="disc"></div>
+      <div class="disc-info">
+        <h3><span class="led-dot amber"></span>NOW PLAYING</h3>
+        <p>
+          O barulho do disco girando é o ASMR dessa estética. O laser lendo dados a 150KB/s. O spin-up do drive ao inserir um CD novo. Mídia física tem <strong>ritual</strong>: abrir a caixa, segurar o disco pela borda, colocar no tray, apertar o botão, esperar. Cada etapa é intencional. Nada é instantâneo, e tudo bem.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULL WIDTH: TERMINAL -->
+  <div class="cell full-section" style="animation-delay: 0.5s;">
+    <div class="cell-number">006 — O TERMINAL</div>
+    <div class="cell-title">Tudo roda no terminal</div>
+    <div class="cell-desc" style="margin-bottom: 20px;">
+      GUI é pra quem não sabe o que tá fazendo. Aqui é <strong>neovim</strong>, <strong>tmux</strong>, <strong>ranger</strong>, <strong>cmus</strong>. O terminal não é ferramenta — é <strong>ambiente</strong>. Arch Linux porque você montou do zero e sabe cada pacote que tá instalado. Nada de bloatware. Minimalismo funcional.
+    </div>
+    <div class="terminal">
+      <div class="line comment"># ~/scripts/rip-cd.sh</div>
+      <div class="line bright">$ cdparanoia -B && flac --best *.wav</div>
+      <div class="line">Ripping track 01... [100%]</div>
+      <div class="line">Ripping track 02... [100%]</div>
+      <div class="line">Encoding to FLAC... done.</div>
+      <div class="line comment"># organizando a biblioteca</div>
+      <div class="line bright">$ beet import ~/rips/new/</div>
+      <div class="line">Tagging: Daft Punk - Discovery (2001)</div>
+      <div class="line">Apply? [A]pply, [S]kip: A</div>
+      <div class="line comment"># tocando no cmus</div>
+      <div class="line bright">$ cmus<span class="cursor"></span></div>
+    </div>
+  </div>
+
+  <!-- FULL WIDTH: INVENTORY -->
+  <div class="cell full-section" style="animation-delay: 0.5s;">
+    <div class="inventory-title"><span class="led-dot"></span>Inventário Essencial</div>
+    <div class="inventory-grid">
+      <div class="inv-item">
+        <div class="inv-icon">💿</div>
+        <div class="inv-name">CDs de Música</div>
+        <div class="inv-detail">Jewel case > digipak</div>
+      </div>
+      <div class="inv-item">
+        <div class="inv-icon">🎮</div>
+        <div class="inv-name">PSP-3000</div>
+        <div class="inv-detail">CFW 6.61 PRO-C</div>
+      </div>
+      <div class="inv-item">
+        <div class="inv-icon">📺</div>
+        <div class="inv-name">Monitor CRT</div>
+        <div class="inv-detail">Sony Trinitron 17"</div>
+      </div>
+      <div class="inv-item">
+        <div class="inv-icon">🎵</div>
+        <div class="inv-name">iPod Classic</div>
+        <div class="inv-detail">160GB / FLAC via Rockbox</div>
+      </div>
+      <div class="inv-item">
+        <div class="inv-icon">📷</div>
+        <div class="inv-name">Sony Cyber-shot</div>
+        <div class="inv-detail">DSC-W800 / 20.1MP</div>
+      </div>
+      <div class="inv-item">
+        <div class="inv-icon">🕹️</div>
+        <div class="inv-name">Nintendo 3DS</div>
+        <div class="inv-detail">Luma3DS + freeshop</div>
+      </div>
+      <div class="inv-item">
+        <div class="inv-icon">🖥️</div>
+        <div class="inv-name">Gabinete Bege</div>
+        <div class="inv-detail">Drive CD + Disquete 3.5"</div>
+      </div>
+      <div class="inv-item">
+        <div class="inv-icon">🎧</div>
+        <div class="inv-name">MP3 Player</div>
+        <div class="inv-detail">Creative Zen / iRiver</div>
+      </div>
+      <div class="inv-item">
+        <div class="inv-icon">📀</div>
+        <div class="inv-name">Discos de PS1/PS2</div>
+        <div class="inv-detail">Coleção sem fim</div>
+      </div>
+      <div class="inv-item">
+        <div class="inv-icon">🔌</div>
+        <div class="inv-name">Cabos RCA/S-Video</div>
+        <div class="inv-detail">Gaveta inteira dedicada</div>
+      </div>
+      <div class="inv-item">
+        <div class="inv-icon">🎛️</div>
+        <div class="inv-name">Toca-Discos</div>
+        <div class="inv-detail">Audio-Technica AT-LP60</div>
+      </div>
+      <div class="inv-item">
+        <div class="inv-icon">💾</div>
+        <div class="inv-name">HD Externo</div>
+        <div class="inv-detail">2TB / ext4 / backups</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ATMOSPHERE -->
+  <div class="cell">
+    <div class="cell-number">007 — ATMOSFERA</div>
+    <div class="cell-title">O que você sente</div>
+    <div class="vibe-list" style="grid-template-columns: 1fr;">
+      <div class="vibe-card">
+        <h4><span class="led-dot"></span>Visual</h4>
+        <p>Luz LED azul refletindo em plástico preto. Brilho fraco do CRT em quarto escuro. Fios por todo lado — não bagunça, é <em>infraestrutura</em>. Prateleiras com CDs organizados por gênero. O ambar do terminal num segundo monitor.</p>
+      </div>
+      <div class="vibe-card">
+        <h4><span class="led-dot green"></span>Som</h4>
+        <p>Fan noise do PC. Disco girando no drive. Click do teclado mecânico. Trip-hop ou IDM baixinho nos speakers. O beep do POST na inicialização. Silêncio interrompido pelo spin-up de um HD.</p>
+      </div>
+      <div class="vibe-card">
+        <h4><span class="led-dot amber"></span>Sensação</h4>
+        <p>Café frio na caneca. Calor do gabinete no inverno. Peso de um CRT na mesa. O click satisfatório de um cartucho de GBA. Plástico macio do controle de PS2 gasto pelo uso. O frio do metal de um iPod Classic.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAYLIST -->
+  <div class="cell">
+    <div class="cell-number">008 — TRILHA SONORA</div>
+    <div class="cell-title">Na rotação</div>
+    <div class="cell-desc" style="margin-bottom: 16px;">CDs que estão sempre perto do drive. O som que define o ambiente.</div>
+    <div class="playlist">
+      <div class="track">
+        <span class="track-num">01</span>
+        <span class="track-title">Discovery</span>
+        <span class="track-artist">Daft Punk</span>
+      </div>
+      <div class="track">
+        <span class="track-num">02</span>
+        <span class="track-title">Mezzanine</span>
+        <span class="track-artist">Massive Attack</span>
+      </div>
+      <div class="track">
+        <span class="track-num">03</span>
+        <span class="track-title">Moon Safari</span>
+        <span class="track-artist">Air</span>
+      </div>
+      <div class="track">
+        <span class="track-num">04</span>
+        <span class="track-title">Kid A</span>
+        <span class="track-artist">Radiohead</span>
+      </div>
+      <div class="track">
+        <span class="track-num">05</span>
+        <span class="track-title">Geogaddi</span>
+        <span class="track-artist">Boards of Canada</span>
+      </div>
+      <div class="track">
+        <span class="track-num">06</span>
+        <span class="track-title">Music Has the Right to Children</span>
+        <span class="track-artist">Boards of Canada</span>
+      </div>
+      <div class="track">
+        <span class="track-num">07</span>
+        <span class="track-title">Hybrid Theory</span>
+        <span class="track-artist">Linkin Park</span>
+      </div>
+      <div class="track">
+        <span class="track-num">08</span>
+        <span class="track-title">The Fat of the Land</span>
+        <span class="track-artist">The Prodigy</span>
+      </div>
+      <div class="track">
+        <span class="track-num">09</span>
+        <span class="track-title">Dummy</span>
+        <span class="track-artist">Portishead</span>
+      </div>
+      <div class="track">
+        <span class="track-num">10</span>
+        <span class="track-title">Selected Ambient Works 85-92</span>
+        <span class="track-artist">Aphex Twin</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULL WIDTH: PALETA -->
+  <div class="cell full-section" style="animation-delay: 0.6s;">
+    <div class="cell-number">009 — PALETA DE CORES</div>
+    <div class="cell-title">Cores do quarto às 2 da manhã</div>
+    <div style="display: flex; gap: 2px; margin-top: 24px; height: 80px;">
+      <div style="flex: 1; background: #0a0a0f; display:flex; align-items:end; padding:8px;">
+        <span style="font-family:'Share Tech Mono'; font-size:8px; color:rgba(255,255,255,0.3);">#0A0A0F<br>VOID</span>
+      </div>
+      <div style="flex: 1; background: #111118; display:flex; align-items:end; padding:8px;">
+        <span style="font-family:'Share Tech Mono'; font-size:8px; color:rgba(255,255,255,0.3);">#111118<br>PANEL</span>
+      </div>
+      <div style="flex: 1; background: #1a2a4a; display:flex; align-items:end; padding:8px;">
+        <span style="font-family:'Share Tech Mono'; font-size:8px; color:rgba(255,255,255,0.4);">#1A2A4A<br>COLD</span>
+      </div>
+      <div style="flex: 1; background: #0066ff; display:flex; align-items:end; padding:8px;">
+        <span style="font-family:'Share Tech Mono'; font-size:8px; color:rgba(255,255,255,0.7);">#0066FF<br>LED</span>
+      </div>
+      <div style="flex: 1; background: #39ff14; display:flex; align-items:end; padding:8px;">
+        <span style="font-family:'Share Tech Mono'; font-size:8px; color:rgba(0,0,0,0.5);">#39FF14<br>TERM</span>
+      </div>
+      <div style="flex: 1; background: #ff9500; display:flex; align-items:end; padding:8px;">
+        <span style="font-family:'Share Tech Mono'; font-size:8px; color:rgba(0,0,0,0.5);">#FF9500<br>AMBER</span>
+      </div>
+      <div style="flex: 1; background: #c0c0c8; display:flex; align-items:end; padding:8px;">
+        <span style="font-family:'Share Tech Mono'; font-size:8px; color:rgba(0,0,0,0.4);">#C0C0C8<br>DISC</span>
+      </div>
+    </div>
+    <div class="cell-desc" style="margin-top: 20px;">
+      Preto profundo como base. Azul LED como acento dominante. Verde terminal pra texto funcional. Ambar pros destaques quentes. Prata de CD pra elementos metálicos. Nada de cores vibrantes demais — tudo filtrado pela escuridão do quarto.
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div>
+    <div>GEN X SOFT CLUB // AESTHETIC GUIDE v2.7</div>
+    <div style="margin-top: 4px;">PHYSICAL MEDIA IS NOT DEAD — IT JUST WENT UNDERGROUND</div>
+  </div>
+  <div class="footer-ascii">
+ ╔══════════════╗
+ ║  ◉  CD-ROM   ║
+ ║  ▓▓▓▓▓▓▓▓▓▓  ║
+ ║  ▓▓▓▓▓▓▓▓▓▓  ║
+ ╚══════════════╝
+  </div>
+  <div style="text-align:right;">
+    EOF<br>
+    SYS OK
+  </div>
+</footer>
+
+</body>
+</html>
