@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Etapa 02 — CSS Base</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #08080d;
+  --bg-surface: #0b0b13;
+  --bg-elevated: #101018;
+  --blue-cold: #4a7c9b;
+  --blue-glow: #5ba0c0;
+  --blue-dim: #1e3a4d;
+  --blue-accent: #7ec8e3;
+  --green-term: #4af626;
+  --text-primary: #b8c4cc;
+  --text-dim: #5a6872;
+  --text-muted: #3a4248;
+  --red-dim: #8b3a3a;
+  --white-flicker: #d0dce4;
+  --yellow-warn: #c9a84c;
+  --purple-note: #7b68a8;
+}
+
+html { scroll-behavior: smooth; scrollbar-width: thin; scrollbar-color: var(--blue-dim) var(--bg); }
+
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--bg);
+  color: var(--text-primary);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+.crt-overlay {
+  position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+}
+.crt-overlay::before {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.035) 2px, rgba(0,0,0,0.035) 4px);
+}
+.crt-overlay::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.3) 100%);
+}
+
+.ambient-glow {
+  position: fixed; top: -200px; left: 50%; transform: translateX(-50%);
+  width: 600px; height: 400px;
+  background: radial-gradient(ellipse, rgba(74,124,155,0.04) 0%, transparent 70%);
+  pointer-events: none; z-index: -1;
+}
+
+.scroll-bar {
+  position: fixed; top: 0; left: 0; height: 2px;
+  background: var(--blue-dim); box-shadow: 0 0 8px var(--blue-cold);
+  z-index: 10001; width: 0%; transition: width 0.1s linear;
+}
+
+.wrapper {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 2rem 2rem 6rem;
+}
+
+.guide-header {
+  padding: 3rem 0 2.5rem;
+  border-bottom: 1px solid var(--blue-dim);
+  margin-bottom: 3rem;
+  position: relative;
+}
+.guide-header::after {
+  content: ''; position: absolute; bottom: -1px; left: 0;
+  width: 100px; height: 1px;
+  background: var(--blue-glow); box-shadow: 0 0 8px var(--blue-cold);
+}
+
+.step-badge {
+  display: inline-block;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--bg); background: var(--blue-cold);
+  padding: 3px 10px; margin-bottom: 1rem;
+}
+
+.guide-header h1 {
+  font-family: 'Space Mono', monospace;
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  font-weight: 700; color: var(--white-flicker);
+  letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 0.8rem;
+  text-shadow: 0 0 20px rgba(91,160,192,0.15);
+}
+
+.guide-header .subtitle {
+  font-size: 13px; color: var(--text-dim); font-style: italic; max-width: 550px;
+}
+.guide-header .subtitle em { color: var(--blue-cold); font-style: normal; }
+
+.roadmap {
+  display: flex; gap: 2px; margin-bottom: 3rem;
+  border: 1px solid #151520; overflow: hidden;
+}
+.roadmap-step {
+  flex: 1; padding: 0.7rem 0.5rem; text-align: center;
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  background: var(--bg-surface); color: var(--text-muted);
+  border-right: 1px solid #151520; transition: all 0.3s;
+}
+.roadmap-step:last-child { border-right: none; }
+.roadmap-step.active {
+  background: var(--blue-dim); color: var(--white-flicker);
+  box-shadow: inset 0 -2px 0 var(--blue-glow);
+}
+.roadmap-step.done { background: #0d1a12; color: #4af626; }
+.roadmap-step .num { display: block; font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+
+section { margin-bottom: 3.5rem; }
+
+.section-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.25em; color: var(--blue-dim); margin-bottom: 0.4rem;
+}
+
+h2 {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.1rem; font-weight: 700; color: var(--white-flicker);
+  margin-bottom: 1.2rem; padding-bottom: 0.5rem; border-bottom: 1px solid #151520;
+}
+h2 .hash { color: var(--blue-dim); margin-right: 0.4rem; font-weight: 400; }
+
+h3 {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.9rem; font-weight: 700; color: var(--blue-cold);
+  margin: 1.8rem 0 0.6rem;
+}
+
+p { font-size: 13.5px; margin-bottom: 1rem; }
+p.dim { color: var(--text-dim); }
+
+strong { color: var(--white-flicker); font-weight: 600; }
+em { color: var(--blue-cold); font-style: italic; }
+
+.code-block {
+  background: #060609;
+  border: 1px solid #1a1a26;
+  margin: 1.2rem 0 1.5rem;
+  overflow-x: auto;
+  position: relative;
+}
+
+.code-block-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #1a1a26;
+  background: #0a0a12;
+}
+
+.code-block-filename {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; letter-spacing: 0.1em;
+  color: var(--text-muted); text-transform: uppercase;
+}
+
+.code-block-lang {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px; padding: 1px 6px;
+  border: 1px solid #1e1e2e; color: var(--blue-dim);
+}
+
+.code-block pre {
+  padding: 1rem 1.2rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px; line-height: 1.8;
+  color: var(--text-primary);
+  overflow-x: auto;
+}
+
+.tag { color: var(--blue-cold); }
+.attr { color: var(--yellow-warn); }
+.val { color: var(--green-term); }
+.cmt { color: #3a3a4a; font-style: italic; }
+.txt { color: var(--text-dim); }
+.kw { color: var(--purple-note); }
+.prop { color: var(--blue-accent); }
+.sel { color: var(--yellow-warn); }
+.unit { color: #8b6b3a; }
+
+.concept {
+  border: 1px solid #151520;
+  background: var(--bg-surface);
+  padding: 1.2rem 1.4rem;
+  margin: 1.2rem 0;
+  position: relative;
+  transition: border-color 0.3s;
+}
+.concept:hover { border-color: var(--blue-dim); }
+
+.concept-icon {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.15em; color: var(--text-muted); margin-bottom: 0.5rem;
+}
+.concept-icon.important { color: var(--yellow-warn); }
+.concept-icon.note { color: var(--purple-note); }
+.concept-icon.tip { color: var(--green-term); }
+
+.concept h4 {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px; font-weight: 700; color: var(--white-flicker);
+  margin-bottom: 0.5rem;
+}
+.concept p { font-size: 12.5px; margin-bottom: 0; }
+.concept p + p { margin-top: 0.6rem; }
+
+.compare-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+  border: 1px solid #151520; margin: 1.2rem 0;
+}
+.compare-col {
+  background: var(--bg-surface); padding: 1rem 1.2rem;
+}
+.compare-col.bad { border-top: 2px solid var(--red-dim); }
+.compare-col.good { border-top: 2px solid #3a6b3a; }
+.compare-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.15em; margin-bottom: 0.6rem;
+}
+.compare-col.bad .compare-label { color: var(--red-dim); }
+.compare-col.good .compare-label { color: #3a6b3a; }
+.compare-col pre {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px; line-height: 1.7; color: var(--text-dim);
+}
+
+code {
+  font-family: 'Space Mono', monospace;
+  font-size: 11.5px; background: var(--bg-elevated);
+  padding: 1px 5px; border: 1px solid #1a1a26; color: var(--blue-accent);
+}
+
+.terminal-block {
+  background: #060609; border: 1px solid #1a1a26;
+  padding: 1rem 1.2rem; margin: 1.2rem 0;
+  font-family: 'Space Mono', monospace; font-size: 12px;
+}
+.terminal-block .prompt { color: var(--blue-cold); }
+.terminal-block .cmd { color: var(--green-term); }
+.terminal-block .out { color: var(--text-muted); }
+
+.ascii-divider {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px; color: var(--text-muted);
+  text-align: center; margin: 2.5rem 0; opacity: 0.5;
+  letter-spacing: 0.3em; user-select: none;
+}
+
+.checklist {
+  border: 1px solid #151520;
+  background: var(--bg-surface);
+  padding: 1.2rem 1.4rem;
+  margin: 1.2rem 0;
+}
+.checklist-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.2em; color: var(--text-muted); margin-bottom: 0.8rem;
+}
+.checklist-item {
+  font-size: 12.5px; padding: 0.3rem 0; color: var(--text-dim);
+}
+.checklist-item .check { color: var(--green-term); margin-right: 0.5rem; }
+
+.guide-footer {
+  margin-top: 3rem; padding-top: 2rem;
+  border-top: 1px solid #111119; text-align: center;
+  font-size: 11px; color: var(--text-muted);
+  font-family: 'Space Mono', monospace;
+}
+.guide-footer .glyph {
+  font-size: 16px; display: block; margin-bottom: 0.6rem;
+  color: var(--blue-dim); text-shadow: 0 0 10px rgba(91,160,192,0.2);
+}
+
+/* COLOR SWATCH DISPLAY */
+.swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 2px;
+  border: 1px solid #151520;
+  margin: 1.2rem 0;
+}
+.swatch {
+  background: var(--bg-surface);
+  padding: 0.8rem 1rem;
+  display: flex; align-items: center; gap: 0.8rem;
+  transition: background 0.2s;
+}
+.swatch:hover { background: var(--bg-elevated); }
+.swatch-color {
+  width: 28px; height: 28px; border-radius: 2px;
+  border: 1px solid #1a1a26; flex-shrink: 0;
+}
+.swatch-info {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+}
+.swatch-name { color: var(--text-dim); margin-bottom: 2px; }
+.swatch-hex { color: var(--text-muted); letter-spacing: 0.05em; }
+
+/* VISUAL DEMO PANELS */
+.demo-panel {
+  border: 1px solid #1a1a26;
+  margin: 1.2rem 0;
+  overflow: hidden;
+}
+.demo-panel-header {
+  padding: 0.4rem 1rem;
+  background: #0a0a12;
+  border-bottom: 1px solid #1a1a26;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; color: var(--text-muted);
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.demo-panel-body {
+  padding: 1.5rem;
+}
+
+/* BEFORE/AFTER */
+.before-after {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+  border: 1px solid #151520; margin: 1.2rem 0;
+}
+.ba-col { padding: 1.2rem; }
+.ba-col.before {
+  background: #ffffff; color: #000000;
+  font-family: 'Times New Roman', serif; font-size: 14px; line-height: 1.4;
+}
+.ba-col.before h4 { font-size: 20px; margin-bottom: 0.5rem; font-family: 'Times New Roman', serif; }
+.ba-col.before p { color: #333; font-size: 13px; margin-bottom: 0.5rem; }
+.ba-col.before a { color: #0000EE; }
+.ba-col.before .ba-label {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  color: #999; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.8rem;
+}
+.ba-col.after {
+  background: var(--bg); color: var(--text-primary);
+  font-family: 'IBM Plex Mono', monospace; font-size: 14px; line-height: 1.7;
+}
+.ba-col.after h4 {
+  font-family: 'Space Mono', monospace; font-size: 16px;
+  color: var(--white-flicker); margin-bottom: 0.5rem;
+  text-shadow: 0 0 15px rgba(91,160,192,0.15);
+}
+.ba-col.after p { color: var(--text-primary); font-size: 13px; margin-bottom: 0.5rem; }
+.ba-col.after em { color: var(--blue-cold); }
+.ba-col.after strong { color: var(--white-flicker); }
+.ba-col.after .ba-label {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  color: var(--blue-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.8rem;
+}
+
+/* BOX MODEL DIAGRAM */
+.box-model-demo {
+  display: flex; justify-content: center; align-items: center;
+  padding: 2rem; margin: 1.2rem 0;
+  background: #060609; border: 1px solid #1a1a26;
+}
+.bm-margin {
+  border: 1px dashed var(--text-muted); padding: 14px;
+  position: relative;
+}
+.bm-margin::before {
+  content: 'margin'; position: absolute; top: -8px; left: 8px;
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  color: var(--yellow-warn); background: #060609; padding: 0 4px;
+}
+.bm-border {
+  border: 2px solid var(--blue-cold); padding: 14px;
+  position: relative;
+}
+.bm-border::before {
+  content: 'border'; position: absolute; top: -8px; left: 8px;
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  color: var(--blue-cold); background: #060609; padding: 0 4px;
+}
+.bm-padding {
+  border: 1px dashed var(--green-term); padding: 14px;
+  position: relative;
+}
+.bm-padding::before {
+  content: 'padding'; position: absolute; top: -8px; left: 8px;
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  color: var(--green-term); background: #0b0b13; padding: 0 4px;
+}
+.bm-content {
+  background: var(--bg-elevated);
+  padding: 1rem 1.5rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px; color: var(--text-dim);
+  text-align: center;
+  border: 1px solid #1e1e2e;
+}
+
+.fade-in {
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 600px) {
+  .wrapper { padding: 1.5rem 1rem 4rem; }
+  .roadmap { flex-wrap: wrap; }
+  .roadmap-step { flex: none; width: 50%; }
+  .compare-grid, .before-after { grid-template-columns: 1fr; }
+  .swatch-grid { grid-template-columns: 1fr 1fr; }
+  .guide-header { padding: 2rem 0 2rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="crt-overlay"></div>
+<div class="ambient-glow"></div>
+<div class="scroll-bar" id="scrollBar"></div>
+
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <header class="guide-header">
+    <div class="step-badge">tutorial — the wired architect</div>
+    <h1>Etapa 02: CSS Base</h1>
+    <p class="subtitle">
+      O esqueleto existe. Agora damos a ele <em>pele, cor e forma</em>. Reset, variáveis, fontes, layout e tipografia — a fundação visual.
+    </p>
+  </header>
+
+  <!-- ROADMAP -->
+  <div class="roadmap">
+    <div class="roadmap-step done">
+      <span class="num">01</span> html base
+    </div>
+    <div class="roadmap-step active">
+      <span class="num">02</span> css base
+    </div>
+    <div class="roadmap-step">
+      <span class="num">03</span> conteúdo
+    </div>
+    <div class="roadmap-step">
+      <span class="num">04</span> efeitos
+    </div>
+    <div class="roadmap-step">
+      <span class="num">05</span> polish
+    </div>
+  </div>
+
+  <!-- SECTION: O QUE VAMOS FAZER -->
+  <section class="fade-in">
+    <div class="section-label">// objetivo</div>
+    <h2><span class="hash">#</span> O que vamos construir aqui</h2>
+
+    <p>
+      Na Etapa 01 criamos HTML puro — texto preto em fundo branco. Agora vamos transformá-lo visualmente. Ao final desta etapa, o site já terá o <strong>fundo escuro</strong>, as <strong>fontes monospace</strong>, a <strong>paleta azulada</strong> e o <strong>layout centralizado</strong>.
+    </p>
+
+    <div class="before-after">
+      <div class="ba-col before">
+        <div class="ba-label">antes — html puro</div>
+        <h4>The Wired Architect</h4>
+        <p><i>Cyber-grunge / older brother core</i> — a estética de quem construiu a própria máquina.</p>
+        <p><a href="#">O Arquétipo</a></p>
+      </div>
+      <div class="ba-col after">
+        <div class="ba-label">depois — com css base</div>
+        <h4>The Wired Architect</h4>
+        <p><em>Cyber-grunge / older brother core</em> — a estética de quem construiu a <strong>própria máquina</strong>.</p>
+        <p style="color: var(--blue-cold); font-size: 12px;">> O Arquétipo</p>
+      </div>
+    </div>
+
+    <p class="dim">
+      Vamos abordar 5 conceitos fundamentais de CSS, um por seção. Cada conceito constrói sobre o anterior.
+    </p>
+  </section>
+
+  <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
+
+  <!-- SECTION 1: RESET CSS -->
+  <section class="fade-in">
+    <div class="section-label">// 01 — fundação</div>
+    <h2><span class="hash">#</span> Reset CSS — Zerando o Navegador</h2>
+
+    <p>
+      Cada navegador (Chrome, Firefox, Safari) aplica estilos padrão ao HTML — margens no <code>&lt;body&gt;</code>, padding em listas, fontes serifadas em títulos. Esses padrões são <strong>inconsistentes</strong> entre navegadores. O primeiro passo de qualquer projeto CSS é neutralizá-los.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-block-filename">style.css — reset</span>
+        <span class="code-block-lang">css</span>
+      </div>
+      <pre>
+<span class="cmt">/* === RESET === */</span>
+<span class="sel">*,
+*::before,
+*::after</span> {
+  <span class="prop">margin</span>: <span class="val">0</span>;
+  <span class="prop">padding</span>: <span class="val">0</span>;
+  <span class="prop">box-sizing</span>: <span class="val">border-box</span>;
+}</pre>
+    </div>
+
+    <div class="concept">
+      <div class="concept-icon important">⚠ conceito-chave</div>
+      <h4>O Seletor Universal: *</h4>
+      <p>O <code>*</code> seleciona <strong>todos os elementos</strong> da página. Combinado com <code>::before</code> e <code>::after</code> (pseudo-elementos), garante que absolutamente nada escape do reset. É agressivo, mas eficaz.</p>
+    </div>
+
+    <div class="concept">
+      <div class="concept-icon important">⚠ conceito-chave</div>
+      <h4>box-sizing: border-box</h4>
+      <p>Por padrão, CSS calcula o tamanho de um elemento de forma confusa: se você define <code>width: 200px</code> e adiciona <code>padding: 20px</code>, o elemento fica com 240px de largura total. Com <code>border-box</code>, o padding é calculado <strong>dentro</strong> dos 200px. O mundo faz sentido novamente.</p>
+    </div>
+
+    <h3>O Box Model</h3>
+
+    <p>
+      Todo elemento HTML é uma caixa com 4 camadas. Este é o <strong>box model</strong> — o conceito mais fundamental do CSS:
+    </p>
+
+    <div class="box-model-demo">
+      <div class="bm-margin">
+        <div class="bm-border">
+          <div class="bm-padding">
+            <div class="bm-content">conteúdo</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-col bad">
+        <div class="compare-label">✗ content-box (padrão)</div>
+        <pre>
+width: 200px
++ padding: 20px (cada lado)
++ border: 2px (cada lado)
+──────────────────
+= 244px de largura real 😤</pre>
+      </div>
+      <div class="compare-col good">
+        <div class="compare-label">✓ border-box (nosso reset)</div>
+        <pre>
+width: 200px
+  padding: 20px (incluso)
+  border: 2px (incluso)
+──────────────────
+= 200px de largura real ✓</pre>
+      </div>
+    </div>
+  </section>
+
+  <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
+
+  <!-- SECTION 2: CUSTOM PROPERTIES -->
+  <section class="fade-in">
+    <div class="section-label">// 02 — variáveis</div>
+    <h2><span class="hash">#</span> Custom Properties — Variáveis CSS</h2>
+
+    <p>
+      Em vez de repetir <code>#4a7c9b</code> trinta vezes pelo arquivo, definimos <strong>variáveis</strong> uma vez e referenciamos em todo lugar. Se quiser mudar o tom de azul do site inteiro, basta mudar um valor.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-block-filename">style.css — variáveis</span>
+        <span class="code-block-lang">css</span>
+      </div>
+      <pre>
+<span class="cmt">/* === VARIÁVEIS (Custom Properties) === */</span>
+<span class="sel">:root</span> {
+  <span class="cmt">/* Fundos: do mais escuro ao mais claro */</span>
+  <span class="prop">--bg</span>:          <span class="val">#08080d</span>;   <span class="cmt">/* fundo principal */</span>
+  <span class="prop">--bg-surface</span>:  <span class="val">#0b0b13</span>;   <span class="cmt">/* cards, blocos */</span>
+  <span class="prop">--bg-elevated</span>: <span class="val">#101018</span>;   <span class="cmt">/* hover, destaques */</span>
+
+  <span class="cmt">/* Azuis: a cor dominante da estética */</span>
+  <span class="prop">--blue-cold</span>:   <span class="val">#4a7c9b</span>;   <span class="cmt">/* azul principal */</span>
+  <span class="prop">--blue-glow</span>:   <span class="val">#5ba0c0</span>;   <span class="cmt">/* efeitos de brilho */</span>
+  <span class="prop">--blue-dim</span>:    <span class="val">#1e3a4d</span>;   <span class="cmt">/* bordas, detalhe sutil */</span>
+  <span class="prop">--blue-accent</span>: <span class="val">#7ec8e3</span>;   <span class="cmt">/* destaques, inline code */</span>
+
+  <span class="cmt">/* Texto: hierarquia de visibilidade */</span>
+  <span class="prop">--text-primary</span>: <span class="val">#b8c4cc</span>;  <span class="cmt">/* texto principal */</span>
+  <span class="prop">--text-dim</span>:     <span class="val">#5a6872</span>;  <span class="cmt">/* texto secundário */</span>
+  <span class="prop">--text-muted</span>:   <span class="val">#3a4248</span>;  <span class="cmt">/* labels, quase invisível */</span>
+
+  <span class="cmt">/* Utilitários */</span>
+  <span class="prop">--white-flicker</span>: <span class="val">#d0dce4</span>; <span class="cmt">/* títulos */</span>
+  <span class="prop">--green-term</span>:   <span class="val">#4af626</span>;  <span class="cmt">/* terminal verde */</span>
+  <span class="prop">--red-dim</span>:      <span class="val">#8b3a3a</span>;  <span class="cmt">/* vermelho escuro */</span>
+}</pre>
+    </div>
+
+    <div class="concept">
+      <div class="concept-icon note">📌 como funciona</div>
+      <h4>:root e var()</h4>
+      <p>O seletor <code>:root</code> é o elemento mais alto do DOM (basicamente <code>&lt;html&gt;</code>). Ao definir variáveis nele, ficam acessíveis em qualquer lugar. Para usar: <code>color: var(--blue-cold)</code>. O <code>--</code> duplo é obrigatório — é assim que CSS sabe que é uma variável customizada.</p>
+    </div>
+
+    <h3>A paleta do Wired Architect</h3>
+
+    <p class="dim">
+      Cada cor tem um propósito. A hierarquia visual é construída com tons de azul sobre fundo quase-preto:
+    </p>
+
+    <div class="swatch-grid">
+      <div class="swatch">
+        <div class="swatch-color" style="background: #08080d;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">--bg</div>
+          <div class="swatch-hex">#08080d</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #0b0b13;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">--bg-surface</div>
+          <div class="swatch-hex">#0b0b13</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #101018;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">--bg-elevated</div>
+          <div class="swatch-hex">#101018</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #4a7c9b;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">--blue-cold</div>
+          <div class="swatch-hex">#4a7c9b</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #5ba0c0;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">--blue-glow</div>
+          <div class="swatch-hex">#5ba0c0</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #1e3a4d;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">--blue-dim</div>
+          <div class="swatch-hex">#1e3a4d</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #7ec8e3;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">--blue-accent</div>
+          <div class="swatch-hex">#7ec8e3</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #b8c4cc;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">--text-primary</div>
+          <div class="swatch-hex">#b8c4cc</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #5a6872;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">--text-dim</div>
+          <div class="swatch-hex">#5a6872</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #3a4248;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">--text-muted</div>
+          <div class="swatch-hex">#3a4248</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #d0dce4;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">--white-flicker</div>
+          <div class="swatch-hex">#d0dce4</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #4af626;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">--green-term</div>
+          <div class="swatch-hex">#4af626</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <div class="concept-icon tip">✓ princípio de design</div>
+      <h4>Hierarquia por luminosidade</h4>
+      <p>Repare que temos 3 níveis de fundo e 3 níveis de texto. Isso cria <strong>profundidade</strong> — elementos mais importantes ficam mais claros, elementos secundários recuam para o escuro. Não precisamos de cores gritantes; basta controlar a luminosidade com cuidado.</p>
+    </div>
+  </section>
+
+  <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
+
+  <!-- SECTION 3: FONTES -->
+  <section class="fade-in">
+    <div class="section-label">// 03 — tipografia</div>
+    <h2><span class="hash">#</span> Fontes — Google Fonts + font-family</h2>
+
+    <p>
+      A estética <em>Wired Architect</em> depende de fontes <strong>monospace</strong> — fontes onde cada caractere ocupa a mesma largura, como num terminal. Usamos duas do Google Fonts:
+    </p>
+
+    <div class="compare-grid">
+      <div class="compare-col good" style="border-top-color: var(--blue-cold);">
+        <div class="compare-label" style="color: var(--blue-cold);">IBM Plex Mono — corpo</div>
+        <pre style="font-family: 'IBM Plex Mono', monospace; color: var(--text-primary); line-height: 1.7; font-size: 13px;">
+A verdade de qualquer sistema
+está nas camadas que ninguém
+vê. Protocolos, criptografia,
+a elegância de um daemon bem
+configurado.</pre>
+      </div>
+      <div class="compare-col good" style="border-top-color: var(--yellow-warn);">
+        <div class="compare-label" style="color: var(--yellow-warn);">Space Mono — títulos</div>
+        <pre style="font-family: 'Space Mono', monospace; color: var(--white-flicker); line-height: 1.4; font-size: 15px; font-weight: 700;">
+The Wired Architect
+O Arquétipo
+// 001 — seção</pre>
+      </div>
+    </div>
+
+    <h3>Importando as fontes</h3>
+
+    <p>
+      Para usar fontes externas, precisamos importá-las. Existem duas formas — ambas funcionam, mas cada uma tem vantagens:
+    </p>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-block-filename">método 1: no html (recomendado)</span>
+        <span class="code-block-lang">html</span>
+      </div>
+      <pre>
+<span class="cmt">&lt;!-- No &lt;head&gt; do index.html, ANTES do link do CSS --&gt;</span>
+<span class="tag">&lt;link</span>
+  <span class="attr">href</span>=<span class="val">"https://fonts.googleapis.com/css2?
+    family=IBM+Plex+Mono:wght@400;600;700
+    &family=Space+Mono:wght@400;700
+    &display=swap"</span>
+  <span class="attr">rel</span>=<span class="val">"stylesheet"</span><span class="tag">&gt;</span></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-block-filename">método 2: no css</span>
+        <span class="code-block-lang">css</span>
+      </div>
+      <pre>
+<span class="cmt">/* No topo do style.css, primeira linha */</span>
+<span class="kw">@import</span> <span class="val">url('https://fonts.googleapis.com/css2?
+  family=IBM+Plex+Mono:wght@400;600;700
+  &family=Space+Mono:wght@400;700
+  &display=swap')</span>;</pre>
+    </div>
+
+    <div class="concept">
+      <div class="concept-icon note">📌 link vs @import</div>
+      <h4>Qual usar?</h4>
+      <p>O <code>&lt;link&gt;</code> no HTML carrega as fontes em <strong>paralelo</strong> com o CSS — é mais rápido. O <code>@import</code> no CSS é mais limpo, mas bloqueia o carregamento do restante do CSS até a fonte baixar. Para nosso projeto, <code>@import</code> funciona bem — é um projeto pessoal, não um e-commerce onde cada milissegundo importa.</p>
+    </div>
+
+    <div class="concept">
+      <div class="concept-icon tip">✓ display=swap</div>
+      <h4>O que é display=swap?</h4>
+      <p>Diz ao navegador: "mostre o texto imediatamente com uma fonte padrão e, quando a fonte do Google Fonts carregar, troque (swap)". Sem isso, o texto ficaria invisível até a fonte baixar — ruim para experiência do usuário.</p>
+    </div>
+  </section>
+
+  <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
+
+  <!-- SECTION 4: LAYOUT & CORPO -->
+  <section class="fade-in">
+    <div class="section-label">// 04 — layout</div>
+    <h2><span class="hash">#</span> Corpo e Layout Centralizado</h2>
+
+    <p>
+      Agora aplicamos as variáveis no <code>&lt;body&gt;</code> e nos elementos de <em>layout</em>. A regra mais importante aqui é centralizar o conteúdo com largura máxima.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-block-filename">style.css — html & body</span>
+        <span class="code-block-lang">css</span>
+      </div>
+      <pre>
+<span class="cmt">/* === BASE DO DOCUMENTO === */</span>
+<span class="sel">html</span> {
+  <span class="prop">scroll-behavior</span>: <span class="val">smooth</span>;       <span class="cmt">/* rolagem suave nos links âncora */</span>
+  <span class="prop">scrollbar-width</span>: <span class="val">thin</span>;         <span class="cmt">/* scrollbar fina (Firefox) */</span>
+  <span class="prop">scrollbar-color</span>: <span class="val">var(--blue-dim) var(--bg)</span>;
+}
+
+<span class="sel">body</span> {
+  <span class="prop">font-family</span>: <span class="val">'IBM Plex Mono', monospace</span>;
+  <span class="prop">background</span>:  <span class="val">var(--bg)</span>;         <span class="cmt">/* fundo quase-preto */</span>
+  <span class="prop">color</span>:       <span class="val">var(--text-primary)</span>; <span class="cmt">/* texto cinza-azulado */</span>
+  <span class="prop">line-height</span>: <span class="val">1.7</span>;              <span class="cmt">/* espaço entre linhas */</span>
+  <span class="prop">overflow-x</span>:  <span class="val">hidden</span>;           <span class="cmt">/* impede scroll horizontal */</span>
+}</pre>
+    </div>
+
+    <div class="concept">
+      <div class="concept-icon important">⚠ conceito-chave</div>
+      <h4>line-height: 1.7</h4>
+      <p>Esse valor é <strong>sem unidade</strong> — isso é intencional. Um <code>line-height: 1.7</code> significa "1.7 vezes o tamanho da fonte do elemento". Se a fonte é 14px, o espaço entre linhas será 23.8px. Se usássemos <code>line-height: 24px</code>, esse valor seria fixo e não escalaria com fontes de tamanhos diferentes.</p>
+    </div>
+
+    <h3>Centralizando o conteúdo: max-width + margin auto</h3>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-block-filename">style.css — container principal</span>
+        <span class="code-block-lang">css</span>
+      </div>
+      <pre>
+<span class="cmt">/* === CONTAINER PRINCIPAL (o &lt;main&gt;) === */</span>
+<span class="sel">main</span> {
+  <span class="prop">max-width</span>: <span class="val">780px</span>;              <span class="cmt">/* nunca passa de 780px */</span>
+  <span class="prop">margin</span>:    <span class="val">0 auto</span>;              <span class="cmt">/* centraliza horizontalmente */</span>
+  <span class="prop">padding</span>:   <span class="val">3rem 2rem 6rem</span>;      <span class="cmt">/* espaço interno */</span>
+}</pre>
+    </div>
+
+    <div class="concept">
+      <div class="concept-icon important">⚠ conceito-chave</div>
+      <h4>margin: 0 auto</h4>
+      <p>Essa é a técnica clássica de centralização. O <code>0</code> é para cima/baixo. O <code>auto</code> distribui o espaço restante igualmente entre esquerda e direita. Mas atenção: isso <strong>só funciona</strong> se o elemento tiver uma largura definida (como <code>max-width</code>). Sem largura, <code>auto</code> não sabe o que distribuir.</p>
+    </div>
+
+    <div class="concept">
+      <div class="concept-icon note">📌 unidades: px vs rem</div>
+      <h4>rem — relativo ao root</h4>
+      <p><code>1rem</code> = o tamanho da fonte do <code>&lt;html&gt;</code> (por padrão, 16px). Então <code>3rem</code> = 48px. A vantagem: se o usuário aumentar o tamanho da fonte base no navegador, todo o layout escala proporcionalmente. Use <code>rem</code> para espaçamento e <code>px</code> para detalhes pequenos como bordas.</p>
+    </div>
+  </section>
+
+  <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
+
+  <!-- SECTION 5: TIPOGRAFIA -->
+  <section class="fade-in">
+    <div class="section-label">// 05 — tipografia</div>
+    <h2><span class="hash">#</span> Estilizando Texto e Elementos Base</h2>
+
+    <p>
+      Agora estilizamos cada tag que usamos no HTML. Isso estabelece a <strong>hierarquia visual</strong> — o que é título, o que é corpo, o que recua para segundo plano.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-block-filename">style.css — header</span>
+        <span class="code-block-lang">css</span>
+      </div>
+      <pre>
+<span class="cmt">/* === HEADER === */</span>
+<span class="sel">header</span> {
+  <span class="prop">max-width</span>:      <span class="val">780px</span>;
+  <span class="prop">margin</span>:         <span class="val">0 auto</span>;
+  <span class="prop">padding</span>:        <span class="val">4rem 2rem 3rem</span>;
+  <span class="prop">border-bottom</span>:  <span class="val">1px solid var(--blue-dim)</span>;
+}</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-block-filename">style.css — títulos</span>
+        <span class="code-block-lang">css</span>
+      </div>
+      <pre>
+<span class="cmt">/* === TÍTULOS === */</span>
+<span class="sel">h1</span> {
+  <span class="prop">font-family</span>:    <span class="val">'Space Mono', monospace</span>;
+  <span class="prop">font-size</span>:      <span class="val">2rem</span>;
+  <span class="prop">font-weight</span>:    <span class="val">700</span>;
+  <span class="prop">color</span>:          <span class="val">var(--white-flicker)</span>;
+  <span class="prop">letter-spacing</span>: <span class="val">-0.02em</span>;   <span class="cmt">/* junta um pouco as letras */</span>
+  <span class="prop">line-height</span>:    <span class="val">1.2</span>;
+  <span class="prop">margin-bottom</span>:  <span class="val">1rem</span>;
+}
+
+<span class="sel">h2</span> {
+  <span class="prop">font-family</span>:    <span class="val">'Space Mono', monospace</span>;
+  <span class="prop">font-size</span>:      <span class="val">1.15rem</span>;
+  <span class="prop">font-weight</span>:    <span class="val">700</span>;
+  <span class="prop">color</span>:          <span class="val">var(--white-flicker)</span>;
+  <span class="prop">margin-bottom</span>:  <span class="val">1.5rem</span>;
+  <span class="prop">padding-bottom</span>: <span class="val">0.5rem</span>;
+  <span class="prop">border-bottom</span>:  <span class="val">1px solid #151520</span>;
+}
+
+<span class="sel">h3</span> {
+  <span class="prop">font-family</span>:    <span class="val">'Space Mono', monospace</span>;
+  <span class="prop">font-size</span>:      <span class="val">0.95rem</span>;
+  <span class="prop">font-weight</span>:    <span class="val">700</span>;
+  <span class="prop">color</span>:          <span class="val">var(--blue-cold)</span>;
+  <span class="prop">margin</span>:         <span class="val">2rem 0 0.8rem</span>;
+}</pre>
+    </div>
+
+    <div class="concept">
+      <div class="concept-icon tip">✓ perceba a hierarquia</div>
+      <h4>h1 → h2 → h3</h4>
+      <p><code>h1</code> é branco brilhante, grande, impactante. <code>h2</code> é branco mas menor, com uma borda sutil embaixo. <code>h3</code> desce para o azul frio — menos destaque, mas ainda uma marcação clara. Essa escada de cor e tamanho é o que cria hierarquia visual sem precisar de negrito gritante ou cores vibrantes.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-block-filename">style.css — texto e ênfases</span>
+        <span class="code-block-lang">css</span>
+      </div>
+      <pre>
+<span class="cmt">/* === TEXTO === */</span>
+<span class="sel">p</span> {
+  <span class="prop">font-size</span>:     <span class="val">14px</span>;
+  <span class="prop">margin-bottom</span>: <span class="val">1.2rem</span>;
+  <span class="prop">color</span>:         <span class="val">var(--text-primary)</span>;
+}
+
+<span class="sel">strong</span> {
+  <span class="prop">color</span>:       <span class="val">var(--white-flicker)</span>;
+  <span class="prop">font-weight</span>: <span class="val">600</span>;
+}
+
+<span class="sel">em</span> {
+  <span class="prop">color</span>:      <span class="val">var(--blue-cold)</span>;
+  <span class="prop">font-style</span>: <span class="val">italic</span>;
+}</pre>
+    </div>
+
+    <div class="concept">
+      <div class="concept-icon note">📌 técnica sutil</div>
+      <h4>Ênfase por cor, não por grito</h4>
+      <p>Em fundo escuro, <code>&lt;strong&gt;</code> não precisa ser negrito pesado — basta ser um tom mais claro que o texto ao redor. Nosso texto primário é <code>#b8c4cc</code> e o strong sobe para <code>#d0dce4</code>. É uma diferença sutil que funciona bem em texto monospace onde o peso das letras já é bastante uniforme.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-block-filename">style.css — nav, section e footer</span>
+        <span class="code-block-lang">css</span>
+      </div>
+      <pre>
+<span class="cmt">/* === NAVEGAÇÃO === */</span>
+<span class="sel">nav</span> {
+  <span class="prop">max-width</span>:  <span class="val">780px</span>;
+  <span class="prop">margin</span>:     <span class="val">0 auto</span>;
+  <span class="prop">padding</span>:    <span class="val">1.2rem 2rem</span>;
+  <span class="prop">border</span>:     <span class="val">1px solid #181822</span>;
+  <span class="prop">background</span>: <span class="val">var(--bg-surface)</span>;
+  <span class="prop">margin-bottom</span>: <span class="val">3rem</span>;
+}
+
+<span class="sel">nav a</span> {
+  <span class="prop">display</span>:         <span class="val">block</span>;
+  <span class="prop">color</span>:           <span class="val">var(--blue-cold)</span>;
+  <span class="prop">text-decoration</span>: <span class="val">none</span>;
+  <span class="prop">font-size</span>:       <span class="val">13px</span>;
+  <span class="prop">padding</span>:         <span class="val">0.25rem 0</span>;
+}
+
+<span class="sel">nav a:hover</span> {
+  <span class="prop">color</span>:        <span class="val">var(--blue-accent)</span>;
+  <span class="prop">padding-left</span>: <span class="val">6px</span>;
+}
+
+<span class="cmt">/* === SEÇÕES === */</span>
+<span class="sel">section</span> {
+  <span class="prop">margin-bottom</span>: <span class="val">4rem</span>;
+}
+
+<span class="cmt">/* === FOOTER === */</span>
+<span class="sel">footer</span> {
+  <span class="prop">max-width</span>:   <span class="val">780px</span>;
+  <span class="prop">margin</span>:      <span class="val">0 auto</span>;
+  <span class="prop">padding</span>:     <span class="val">2rem</span>;
+  <span class="prop">border-top</span>:  <span class="val">1px solid #111119</span>;
+  <span class="prop">text-align</span>:  <span class="val">center</span>;
+  <span class="prop">font-size</span>:   <span class="val">11px</span>;
+  <span class="prop">color</span>:       <span class="val">var(--text-muted)</span>;
+  <span class="prop">font-family</span>: <span class="val">'Space Mono', monospace</span>;
+}</pre>
+    </div>
+
+    <div class="concept">
+      <div class="concept-icon important">⚠ conceito-chave</div>
+      <h4>Pseudo-classe :hover</h4>
+      <p>O <code>:hover</code> é uma <strong>pseudo-classe</strong> — um estado que se ativa quando o mouse passa por cima do elemento. No nosso <code>nav a:hover</code>, dois efeitos acontecem: a cor muda para um azul mais claro e o texto se move 6px para a direita. Essa combinação de cor + movimento dá feedback visual ao usuário de que o link é clicável.</p>
+    </div>
+
+    <div class="concept">
+      <div class="concept-icon note">📌 text-decoration: none</div>
+      <h4>Removendo o sublinhado</h4>
+      <p>Links vêm sublinhados por padrão. Com <code>text-decoration: none</code> removemos esse sublinhado. Em interfaces escuras com fontes monospace, links se destacam pela cor — o sublinhado fica redundante e poluído. É uma decisão estética que funciona aqui.</p>
+    </div>
+  </section>
+
+  <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
+
+  <!-- SECTION: SELETORES RESUMO -->
+  <section class="fade-in">
+    <div class="section-label">// referência rápida</div>
+    <h2><span class="hash">#</span> Seletores CSS que Usamos</h2>
+
+    <p>
+      Um resumo rápido dos tipos de seletores que apareceram nesta etapa:
+    </p>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-block-filename">tipos de seletores</span>
+        <span class="code-block-lang">referência</span>
+      </div>
+      <pre>
+<span class="sel">*</span>             <span class="cmt">→ Universal (todos os elementos)</span>
+<span class="sel">body</span>          <span class="cmt">→ Elemento (tag direta)</span>
+<span class="sel">nav a</span>         <span class="cmt">→ Descendente (a dentro de nav)</span>
+<span class="sel">nav a:hover</span>   <span class="cmt">→ Pseudo-classe (estado)</span>
+<span class="sel">*::before</span>     <span class="cmt">→ Pseudo-elemento (conteúdo gerado)</span>
+<span class="sel">:root</span>         <span class="cmt">→ Pseudo-classe (raiz do documento)</span>
+
+<span class="cmt">/* Ainda não usamos, mas veremos nas próximas etapas: */</span>
+<span class="sel">.classe</span>       <span class="cmt">→ Classe (múltiplos elementos)</span>
+<span class="sel">#id</span>           <span class="cmt">→ ID (um único elemento)</span></pre>
+    </div>
+
+    <div class="concept">
+      <div class="concept-icon tip">✓ por que só usamos seletores de tag?</div>
+      <h4>Simplicidade deliberada</h4>
+      <p>Nesta etapa, estilizamos apenas com seletores de tag (<code>body</code>, <code>h1</code>, <code>nav a</code>). Isso funciona porque nosso HTML é <strong>semântico</strong> — cada tag já tem um papel claro. Na Etapa 03, quando adicionarmos mais conteúdo com elementos como cards e media grids, precisaremos de classes. Tudo no seu tempo.</p>
+    </div>
+  </section>
+
+  <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
+
+  <!-- SECTION: ATUALIZAÇÃO NO HTML -->
+  <section class="fade-in">
+    <div class="section-label">// html atualizado</div>
+    <h2><span class="hash">#</span> Atualizando o index.html</h2>
+
+    <p>
+      Nosso HTML da Etapa 01 precisa de uma pequena atualização: adicionar o <code>&lt;link&gt;</code> das fontes no <code>&lt;head&gt;</code>. Fora isso, <strong>nenhuma mudança é necessária no HTML</strong> — todo o trabalho visual acontece no <code>style.css</code>.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-block-filename">index.html — atualização no head</span>
+        <span class="code-block-lang">html</span>
+      </div>
+      <pre>
+<span class="tag">&lt;head&gt;</span>
+  <span class="tag">&lt;meta</span> <span class="attr">charset</span>=<span class="val">"UTF-8"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;meta</span> <span class="attr">name</span>=<span class="val">"viewport"</span>
+        <span class="attr">content</span>=<span class="val">"width=device-width, initial-scale=1.0"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;title&gt;</span><span class="txt">The Wired Architect</span><span class="tag">&lt;/title&gt;</span>
+
+  <span class="cmt">&lt;!-- NOVO: Google Fonts (antes do style.css!) --&gt;</span>
+  <span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="val">"preconnect"</span>
+        <span class="attr">href</span>=<span class="val">"https://fonts.googleapis.com"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="val">"preconnect"</span>
+        <span class="attr">href</span>=<span class="val">"https://fonts.gstatic.com"</span>
+        <span class="attr">crossorigin</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;link</span> <span class="attr">href</span>=<span class="val">"https://fonts.googleapis.com/css2?
+    family=IBM+Plex+Mono:wght@400;600;700
+    &amp;family=Space+Mono:wght@400;700
+    &amp;display=swap"</span>
+        <span class="attr">rel</span>=<span class="val">"stylesheet"</span><span class="tag">&gt;</span>
+
+  <span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="val">"stylesheet"</span> <span class="attr">href</span>=<span class="val">"style.css"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;/head&gt;</span></pre>
+    </div>
+
+    <div class="concept">
+      <div class="concept-icon note">📌 preconnect</div>
+      <h4>O que são esses links preconnect?</h4>
+      <p>São dicas de performance. Dizem ao navegador: "em breve vamos precisar nos conectar a esses domínios — pode ir abrindo a conexão já". Isso economiza tempo quando a fonte realmente for requisitada. Não é obrigatório, mas é boa prática.</p>
+    </div>
+  </section>
+
+  <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
+
+  <!-- CHECKLIST -->
+  <section class="fade-in">
+    <div class="section-label">// checkpoint</div>
+    <h2><span class="hash">#</span> Checklist da Etapa 02</h2>
+
+    <div class="checklist">
+      <div class="checklist-title">// o que você aprendeu</div>
+      <div class="checklist-item"><span class="check">[✓]</span> Reset CSS com seletor universal (*)</div>
+      <div class="checklist-item"><span class="check">[✓]</span> Box model e box-sizing: border-box</div>
+      <div class="checklist-item"><span class="check">[✓]</span> Custom Properties (:root + var())</div>
+      <div class="checklist-item"><span class="check">[✓]</span> Hierarquia de cor para profundidade visual</div>
+      <div class="checklist-item"><span class="check">[✓]</span> Google Fonts: importação e font-family</div>
+      <div class="checklist-item"><span class="check">[✓]</span> display=swap e preconnect</div>
+      <div class="checklist-item"><span class="check">[✓]</span> Layout centralizado com max-width + margin auto</div>
+      <div class="checklist-item"><span class="check">[✓]</span> Unidades: px vs rem vs em</div>
+      <div class="checklist-item"><span class="check">[✓]</span> line-height sem unidade</div>
+      <div class="checklist-item"><span class="check">[✓]</span> Pseudo-classe :hover</div>
+      <div class="checklist-item"><span class="check">[✓]</span> Seletores: universal, tag, descendente</div>
+    </div>
+
+    <div class="concept">
+      <div class="concept-icon note">📌 próxima etapa</div>
+      <h4>Etapa 03: Conteúdo Completo + Estilização</h4>
+      <p>Na próxima etapa, adicionamos todas as seções restantes ao HTML (atmosfera, mídia, som, cultura, definição final) e criamos os estilos com <strong>classes CSS</strong>: pillar cards, media grids, quote blocks, terminal blocks e o nav index completo. É onde o site realmente ganha corpo.</p>
+    </div>
+  </section>
+
+  <footer class="guide-footer">
+    <div class="glyph">⟁</div>
+    <p>etapa 02 de 05 — css base</p>
+    <p style="margin-top: 0.4rem; color: #2a2a36;">the wired architect . tutorial</p>
+  </footer>
+
+</div>
+
+<script>
+window.addEventListener('scroll', () => {
+  const t = document.documentElement.scrollTop;
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  document.getElementById('scrollBar').style.width = (t / h) * 100 + '%';
+});
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+</script>
+
+</body>
+</html>

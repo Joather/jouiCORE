@@ -1,25 +1,32 @@
-@import url (´https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet´)
+/* ""VARIÁVEIS */
 :root {
-	--bg: #08080d;
-	--bg-surface: #0b0b13;
-	--bg-elevated: #101018;
-	--blue-cold: #4a7c9bb;
-	--blue-glow: #5ba0c0;
-	--blue-dim: #1e3a4d;
-	--blue-accent: #7ec8e3;
-	--green-term: #4af626;
-	--text-primary: #b8c4cc;
-	--text-dim #5a6872;
-	--text-muted: #3a4248;
+	/* Fundos */
+	--bg: #08080d; /* fundo principal */
+	--bg-surface: #0b0b13; /* cards, blocos */
+	--bg-elevated: #101018; /* hover, destaques */
+
+	/* Azuis: Cor dominante */
+	--blue-cold: #4a7c9b; /* cor principal */
+	--blue-glow: #5ba0c0; /* efeitos de brilho */
+	--blue-dim: #1e3a4d; /* bordas, detalhe sutil */
+	--blue-accent: #7ec8e3; /* destaques, inline code */
+	
+	/* Texto: hierarquia de visibilidade */
+	--text-primary: #b8c4cc; /* texto principal */
+	--text-dim: #5a6872; /* texto secundário */
+	--text-muted: #3a4248; /* labels, quase invíivel */
+
+	/* Utilitarios */
+	--white-flciker: #d0dce4; /* titulos */
+	--green-term: #4af626; /* terminal verde */
+	--red-dim: #8b3a3a; /* vermelho escuro */
 }
 
-*, *::before, *::after {
+/* ""RESET */
+*,
+*::before,
+*::after {
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
-}
-
-body {
-	font-family: ´IBM Plex Mono´, monospace;
-		
 }
