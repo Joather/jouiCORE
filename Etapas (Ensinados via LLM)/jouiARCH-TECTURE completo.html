@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Wired Architect</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #08080d;
+  --bg-surface: #0b0b13;
+  --bg-elevated: #101018;
+  --blue-cold: #4a7c9b;
+  --blue-glow: #5ba0c0;
+  --blue-dim: #1e3a4d;
+  --blue-accent: #7ec8e3;
+  --green-term: #4af626;
+  --text-primary: #b8c4cc;
+  --text-dim: #5a6872;
+  --text-muted: #3a4248;
+  --red-dim: #8b3a3a;
+  --white-flicker: #d0dce4;
+  --scanline-opacity: 0.04;
+  --noise-opacity: 0.03;
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--blue-dim) var(--bg);
+}
+
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--bg);
+  color: var(--text-primary);
+  line-height: 1.7;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* === CRT OVERLAY === */
+.crt-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.crt-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, var(--scanline-opacity)) 2px,
+    rgba(0, 0, 0, var(--scanline-opacity)) 4px
+  );
+}
+
+.crt-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.35) 100%);
+}
+
+/* === NOISE TEXTURE === */
+.noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: var(--noise-opacity);
+  animation: noise-shift 0.15s steps(3) infinite;
+}
+
+@keyframes noise-shift {
+  0% { transform: translate(0, 0); }
+  33% { transform: translate(-1px, 1px); }
+  66% { transform: translate(1px, -1px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* === BOOT SEQUENCE === */
+.boot-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Mono', monospace;
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+.boot-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.boot-text {
+  color: var(--green-term);
+  font-size: 13px;
+  white-space: pre-wrap;
+  max-width: 620px;
+  padding: 2rem;
+  text-shadow: 0 0 6px rgba(74, 246, 38, 0.4);
+  line-height: 1.6;
+}
+
+.boot-text .cursor-blink {
+  animation: blink 0.7s steps(1) infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* === MAIN CONTAINER === */
+.main-wrapper {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 3rem 2rem 6rem;
+  opacity: 0;
+  transition: opacity 1s ease 0.3s;
+}
+
+.main-wrapper.visible { opacity: 1; }
+
+/* === HEADER === */
+.site-header {
+  padding: 4rem 0 3rem;
+  border-bottom: 1px solid var(--blue-dim);
+  margin-bottom: 3rem;
+  position: relative;
+}
+
+.site-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 120px;
+  height: 1px;
+  background: var(--blue-glow);
+  box-shadow: 0 0 8px var(--blue-cold);
+}
+
+.header-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  font-family: 'Space Mono', monospace;
+}
+
+.header-meta span {
+  color: var(--blue-dim);
+}
+
+h1 {
+  font-family: 'Space Mono', monospace;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 700;
+  color: var(--white-flicker);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 20px rgba(91, 160, 192, 0.15);
+  animation: subtle-flicker 4s ease-in-out infinite;
+}
+
+@keyframes subtle-flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.88; }
+  94% { opacity: 1; }
+  95% { opacity: 0.92; }
+  96% { opacity: 1; }
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--text-dim);
+  font-style: italic;
+  max-width: 500px;
+  line-height: 1.6;
+}
+
+.subtitle em {
+  color: var(--blue-cold);
+  font-style: normal;
+}
+
+/* === NAV === */
+.nav-index {
+  margin-bottom: 3.5rem;
+  padding: 1.2rem 1.5rem;
+  border: 1px solid #181822;
+  background: var(--bg-surface);
+}
+
+.nav-index-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
+  margin-bottom: 0.8rem;
+  font-family: 'Space Mono', monospace;
+}
+
+.nav-index a {
+  display: block;
+  color: var(--blue-cold);
+  text-decoration: none;
+  font-size: 13px;
+  padding: 0.25rem 0;
+  transition: color 0.2s, padding-left 0.2s;
+}
+
+.nav-index a::before {
+  content: '> ';
+  color: var(--text-muted);
+}
+
+.nav-index a:hover {
+  color: var(--blue-accent);
+  padding-left: 6px;
+}
+
+/* === SECTIONS === */
+section {
+  margin-bottom: 4rem;
+}
+
+.section-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--blue-dim);
+  margin-bottom: 0.5rem;
+}
+
+h2 {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--white-flicker);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #151520;
+}
+
+h2 .hash {
+  color: var(--blue-dim);
+  margin-right: 0.4rem;
+  font-weight: 400;
+}
+
+h3 {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--blue-cold);
+  margin: 2rem 0 0.8rem;
+}
+
+p {
+  font-size: 14px;
+  margin-bottom: 1.2rem;
+  color: var(--text-primary);
+}
+
+p.dim {
+  color: var(--text-dim);
+}
+
+strong {
+  color: var(--white-flicker);
+  font-weight: 600;
+}
+
+em {
+  color: var(--blue-cold);
+  font-style: italic;
+}
+
+/* === QUOTE BLOCK === */
+.quote-block {
+  border-left: 2px solid var(--blue-dim);
+  padding: 1rem 1.5rem;
+  margin: 2rem 0;
+  background: var(--bg-surface);
+  font-size: 13px;
+  color: var(--text-dim);
+  font-style: italic;
+  position: relative;
+}
+
+.quote-block::before {
+  content: '/*';
+  position: absolute;
+  top: -8px;
+  left: 12px;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-style: normal;
+  font-family: 'Space Mono', monospace;
+}
+
+.quote-block::after {
+  content: '*/';
+  position: absolute;
+  bottom: -8px;
+  right: 12px;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-style: normal;
+  font-family: 'Space Mono', monospace;
+}
+
+.quote-block em {
+  color: var(--blue-glow);
+}
+
+/* === PILLAR CARDS === */
+.pillar {
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border: 1px solid #151520;
+  background: var(--bg-surface);
+  position: relative;
+  transition: border-color 0.3s;
+}
+
+.pillar:hover {
+  border-color: var(--blue-dim);
+}
+
+.pillar-icon {
+  font-size: 10px;
+  font-family: 'Space Mono', monospace;
+  color: var(--text-muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+
+.pillar h3 {
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+}
+
+.pillar p {
+  margin-bottom: 0;
+  font-size: 13px;
+}
+
+.pillar-tag {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 8px;
+  border: 1px solid #1e1e2e;
+  color: var(--text-muted);
+  font-family: 'Space Mono', monospace;
+  margin-top: 0.8rem;
+  letter-spacing: 0.05em;
+}
+
+/* === MEDIA TABLE === */
+.media-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: #151520;
+  border: 1px solid #151520;
+  margin: 1.5rem 0;
+}
+
+.media-item {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  background: var(--bg-surface);
+  padding: 1rem 1.2rem;
+  transition: background 0.2s;
+}
+
+.media-item:hover {
+  background: var(--bg-elevated);
+}
+
+.media-type {
+  font-size: 10px;
+  font-family: 'Space Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  padding-top: 2px;
+}
+
+.media-type.anime { color: var(--blue-dim); }
+.media-type.filme { color: var(--red-dim); }
+.media-type.jogo { color: #3a6b3a; }
+.media-type.musica { color: #6b5a3a; }
+
+.media-info h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--white-flicker);
+  margin-bottom: 0.3rem;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.media-info p {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* === TERMINAL BLOCK === */
+.terminal-block {
+  background: #060609;
+  border: 1px solid #1a1a26;
+  padding: 1.2rem 1.5rem;
+  margin: 1.5rem 0;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  overflow-x: auto;
+}
+
+.terminal-block .prompt {
+  color: var(--blue-cold);
+}
+
+.terminal-block .command {
+  color: var(--green-term);
+}
+
+.terminal-block .output {
+  color: var(--text-muted);
+}
+
+.terminal-block .comment {
+  color: #3a3a4a;
+}
+
+/* === ASCII ART === */
+.ascii-divider {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 3rem 0;
+  opacity: 0.5;
+  letter-spacing: 0.3em;
+  user-select: none;
+}
+
+/* === FOOTER === */
+.site-footer {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid #111119;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: 'Space Mono', monospace;
+}
+
+.site-footer .glyph {
+  font-size: 16px;
+  display: block;
+  margin-bottom: 0.8rem;
+  color: var(--blue-dim);
+  text-shadow: 0 0 10px rgba(91, 160, 192, 0.2);
+}
+
+/* === GLITCH TEXT === */
+.glitch {
+  position: relative;
+  display: inline-block;
+}
+
+.glitch:hover {
+  animation: glitch-text 0.3s steps(2) forwards;
+}
+
+@keyframes glitch-text {
+  0% { text-shadow: 2px 0 var(--blue-cold), -2px 0 var(--red-dim); }
+  25% { text-shadow: -2px 0 var(--blue-cold), 2px 0 var(--red-dim); }
+  50% { text-shadow: 1px 0 var(--blue-cold), -1px 0 var(--red-dim); }
+  75% { text-shadow: -1px 0 var(--blue-cold), 1px 0 var(--red-dim); }
+  100% { text-shadow: none; }
+}
+
+/* === INLINE CODE === */
+code {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  background: var(--bg-elevated);
+  padding: 2px 6px;
+  border: 1px solid #1a1a26;
+  color: var(--blue-accent);
+}
+
+/* === SCROLL INDICATOR === */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 1px;
+  background: var(--blue-dim);
+  box-shadow: 0 0 6px var(--blue-cold);
+  z-index: 10001;
+  transition: width 0.1s linear;
+  width: 0%;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 600px) {
+  .main-wrapper { padding: 1.5rem 1rem 4rem; }
+  .site-header { padding: 2rem 0 2rem; }
+  .media-item { grid-template-columns: 60px 1fr; padding: 0.8rem 1rem; }
+  .pillar { padding: 1.2rem; }
+}
+
+/* === FADE IN ANIMATIONS === */
+.fade-section {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* === LINK STYLE === */
+a.inline-link {
+  color: var(--blue-cold);
+  text-decoration: none;
+  border-bottom: 1px solid var(--blue-dim);
+  transition: color 0.2s, border-color 0.2s;
+}
+
+a.inline-link:hover {
+  color: var(--blue-accent);
+  border-color: var(--blue-accent);
+}
+
+/* === AMBIENT LIGHT EFFECT === */
+.ambient-glow {
+  position: fixed;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 400px;
+  background: radial-gradient(ellipse, rgba(74, 124, 155, 0.04) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+</style>
+</head>
+<body>
+
+<!-- CRT Effects -->
+<div class="crt-overlay"></div>
+<div class="noise" id="noise"></div>
+<div class="scroll-progress" id="scrollProgress"></div>
+<div class="ambient-glow"></div>
+
+<!-- Boot Sequence -->
+<div class="boot-screen" id="bootScreen">
+  <div class="boot-text" id="bootText"></div>
+</div>
+
+<!-- Main Content -->
+<div class="main-wrapper" id="mainContent">
+
+  <header class="site-header">
+    <div class="header-meta">
+      <span>[</span> manifesto <span>//</span> estética <span>//</span> arquivo <span>]</span>
+    </div>
+    <h1 class="glitch">The Wired Architect</h1>
+    <p class="subtitle">
+      <em>Cyber-grunge / older brother core</em> — a estética de quem construiu a própria máquina antes de construir qualquer outra coisa.
+    </p>
+  </header>
+
+  <nav class="nav-index fade-section">
+    <div class="nav-index-title">// índice</div>
+    <a href="#arquetipo">o arquétipo</a>
+    <a href="#pilares">os pilares</a>
+    <a href="#atmosfera">a atmosfera</a>
+    <a href="#midia">mídia canônica</a>
+    <a href="#som">o som</a>
+    <a href="#cultura">a cultura viva</a>
+    <a href="#definicao">definição final</a>
+  </nav>
+
+  <!-- SECTION: O ARQUÉTIPO -->
+  <section id="arquetipo" class="fade-section">
+    <div class="section-label">// 001</div>
+    <h2><span class="hash">#</span> O Arquétipo</h2>
+
+    <p>
+      Existe uma figura que paira no imaginário de qualquer pessoa que cresceu online no início dos anos 2000. O <strong>irmão mais velho</strong>. Aquele que já tinha um servidor rodando no quarto antes de você saber o que era um IP. Que queimava CDs com nomes escritos de caneta permanente. Que te ensinou a formatar o computador da família — e nunca instalou antivírus porque <em>"se você souber o que está fazendo, não precisa"</em>.
+    </p>
+    <p>
+      <strong>The Wired Architect</strong> é a estética dessa figura. Não é sobre nostalgia passiva. É sobre o <em>mindset</em> de quem viveu a transição da internet discada para a banda larga e carrega até hoje a convicção de que <strong>entender a máquina é mais importante do que usá-la</strong>.
+    </p>
+    <p class="dim">
+      É o minimalismo de quem não precisa de interfaces bonitas. Apenas de eficiência e controle total.
+    </p>
+  </section>
+
+  <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
+
+  <!-- SECTION: OS PILARES -->
+  <section id="pilares" class="fade-section">
+    <div class="section-label">// 002</div>
+    <h2><span class="hash">#</span> Os Pilares</h2>
+
+    <div class="pillar">
+      <div class="pillar-icon">[ hardware ]</div>
+      <h3>O Tátil</h3>
+      <p>
+        CDs físicos como forma de preservação digital. Teclados mecânicos barulhentos que anunciam cada keystroke como um ato deliberado. ThinkPads antigos — máquinas que foram feitas para durar, não para impressionar. A obsessão por <strong>mídia física</strong> não é fetiche retrô: é a compreensão de que o que não existe fisicamente pode ser deletado remotamente.
+      </p>
+      <div class="pillar-tag">tangível > efêmero</div>
+    </div>
+
+    <div class="pillar">
+      <div class="pillar-icon">[ software ]</div>
+      <h3>O Construído</h3>
+      <p>
+        <em>Arch Linux</em> aqui não é apenas um sistema operacional. É um símbolo de autossuficiência. Instalar Arch é um rito de passagem — é dizer <em>"eu prefiro construir do zero a aceitar o que me deram pronto"</em>. Cada dotfile é uma decisão consciente. Cada pacote instalado, uma escolha. O ambiente de trabalho não é configurado: é <strong>arquitetado</strong>.
+      </p>
+      <div class="pillar-tag">controle > conveniência</div>
+    </div>
+
+    <div class="pillar">
+      <div class="pillar-icon">[ mindset ]</div>
+      <h3>Backend Total</h3>
+      <p>
+        O desinteresse pelo Frontend não é preguiça — é filosofia. A verdade de qualquer sistema está nas camadas que ninguém vê. Protocolos de rede, arquitetura de banco de dados, segurança, criptografia. O <code>.conf</code> importa mais que o <code>.css</code>. A beleza está na lógica pura, na elegância de um daemon bem configurado, na arquitetura invisível que <strong>sustenta o mundo sem pedir crédito</strong>.
+      </p>
+      <div class="pillar-tag">estrutura > superfície</div>
+    </div>
+
+    <div class="terminal-block">
+      <span class="comment"># a estética em três comandos</span><br>
+      <span class="prompt">$</span> <span class="command">pacman -S base base-devel</span> <span class="comment"># construa do zero</span><br>
+      <span class="prompt">$</span> <span class="command">vim ~/.config/everything</span> <span class="comment"># configure tudo manualmente</span><br>
+      <span class="prompt">$</span> <span class="command">systemctl disable display-manager</span> <span class="comment"># quem precisa de GUI?</span><br>
+      <br>
+      <span class="output">:: The Wired Architect doesn't use defaults.</span>
+    </div>
+  </section>
+
+  <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
+
+  <!-- SECTION: A ATMOSFERA -->
+  <section id="atmosfera" class="fade-section">
+    <div class="section-label">// 003</div>
+    <h2><span class="hash">#</span> A Atmosfera</h2>
+
+    <p>
+      Quarto escuro. São 3 da manhã. A única fonte de luz é o brilho azulado de um terminal com fonte monospace muito pequena. O ventilador de um servidor caseiro zumbe em algum lugar atrás da mesa. Fones de ouvido grandes — <strong>com fio</strong>, sempre com fio — isolam o mundo exterior. Não como fuga, mas como <em>seleção deliberada de input</em>.
+    </p>
+    <p>
+      O espaço é funcional. Nada decorativo que não seja também útil. Cabos organizados (ou deliberadamente não organizados — a entropia controlada também é uma estética). Monitores CRT ainda guardam um charme que nenhum IPS captura: aquele leve flicker, o som elétrico ao ligar, as scanlines que te lembram que a imagem é feita de <strong>elétrons atingindo fósforo</strong>.
+    </p>
+    <p class="dim">
+      É um isolamento social produtivo. Não é solidão — é concentração com intenção.
+    </p>
+  </section>
+
+  <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
+
+  <!-- SECTION: MÍDIA -->
+  <section id="midia" class="fade-section">
+    <div class="section-label">// 004</div>
+    <h2><span class="hash">#</span> Mídia Canônica</h2>
+
+    <p class="dim">
+      Se <strong>Serial Experiments Lain</strong> é o texto sagrado, essas obras são os evangelhos apócrifos:
+    </p>
+
+    <div class="media-grid">
+      <div class="media-item">
+        <div class="media-type anime">anime</div>
+        <div class="media-info">
+          <h4>Serial Experiments Lain</h4>
+          <p>A base. A conexão entre consciência humana e a Wired. A solidão do quarto iluminado por monitores. Tudo começa aqui.</p>
+        </div>
+      </div>
+      <div class="media-item">
+        <div class="media-type anime">anime</div>
+        <div class="media-info">
+          <h4>Texhnolyze</h4>
+          <p>Da mesma equipe de Lain. O lado cruel, industrial e irremediavelmente técnico do cyberpunk. Sem otimismo. Sem saída fácil.</p>
+        </div>
+      </div>
+      <div class="media-item">
+        <div class="media-type anime">anime</div>
+        <div class="media-info">
+          <h4>Ghost in the Shell (1995)</h4>
+          <p>Filosofia da consciência dentro de redes de dados complexas. A pergunta que nunca sai da cabeça: onde termina a máquina e começa o eu?</p>
+        </div>
+      </div>
+      <div class="media-item">
+        <div class="media-type filme">filme</div>
+        <div class="media-info">
+          <h4>The Matrix (1999)</h4>
+          <p>Especificamente as cenas no "mundo real". Os terminais de código verde. A estética hacker raiz antes de Hollywood transformar em action figure.</p>
+        </div>
+      </div>
+      <div class="media-item">
+        <div class="media-type filme">filme</div>
+        <div class="media-info">
+          <h4>Primer (2004)</h4>
+          <p>Ficção científica ultra-técnica feita por engenheiros. O visual é garagem e hardware cru. Zero glamour, cem por cento substância.</p>
+        </div>
+      </div>
+      <div class="media-item">
+        <div class="media-type jogo">jogo</div>
+        <div class="media-info">
+          <h4>Hypnospace Outlaw</h4>
+          <p>Uma simulação da internet estranha e crua do final dos 90. GeoCities, cursores customizados e a ingenuidade perigosa de uma rede sem regras.</p>
+        </div>
+      </div>
+      <div class="media-item">
+        <div class="media-type jogo">jogo</div>
+        <div class="media-info">
+          <h4>TIS-100</h4>
+          <p>Um "jogo" de programação assembly. Parece um software esquecido rodando em um mainframe de 1987. A diversão é o debugging.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
+
+  <!-- SECTION: O SOM -->
+  <section id="som" class="fade-section">
+    <div class="section-label">// 005</div>
+    <h2><span class="hash">#</span> O Som</h2>
+
+    <p>
+      Essa estética tem uma trilha sonora. É o que toca nos fones às 3AM enquanto o compilador roda. Não é música para dançar — é música para <em>pensar dentro</em>.
+    </p>
+
+    <div class="media-grid">
+      <div class="media-item">
+        <div class="media-type musica">ambient</div>
+        <div class="media-info">
+          <h4>Boards of Canada</h4>
+          <p>Nostalgia analógica processada digitalmente. Loops que parecem memórias degradando em fita magnética.</p>
+        </div>
+      </div>
+      <div class="media-item">
+        <div class="media-type musica">idm</div>
+        <div class="media-info">
+          <h4>Aphex Twin</h4>
+          <p>A mente que trata sintetizadores como sistemas operacionais. Selected Ambient Works é o kernel dessa estética sonora.</p>
+        </div>
+      </div>
+      <div class="media-item">
+        <div class="media-type musica">trip-hop</div>
+        <div class="media-info">
+          <h4>Massive Attack / Portishead</h4>
+          <p>O peso, a escuridão, os loops analógicos. Mezzanine é o álbum para configurar um servidor de madrugada.</p>
+        </div>
+      </div>
+      <div class="media-item">
+        <div class="media-type musica">ost</div>
+        <div class="media-info">
+          <h4>Bôa — "Duvet" (Lain OP)</h4>
+          <p>"And you don't seem to understand..." — a voz que conecta o quarto escuro à Wired. O hino não-oficial.</p>
+        </div>
+      </div>
+      <div class="media-item">
+        <div class="media-type musica">lo-fi</div>
+        <div class="media-info">
+          <h4>Burial</h4>
+          <p>Chuva digital, frequências urbanas fantasmagóricas. O som de uma cidade que dorme enquanto seus servidores seguem acordados.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
+
+  <!-- SECTION: CULTURA -->
+  <section id="cultura" class="fade-section">
+    <div class="section-label">// 006</div>
+    <h2><span class="hash">#</span> A Cultura Viva</h2>
+
+    <p>
+      Essa estética não existe em museus. Ela vive e se reproduz em espaços específicos da internet — os últimos refúgios de uma web que valoriza substância sobre performance.
+    </p>
+
+    <p>
+      <strong>Lainchan</strong> é talvez o epicentro. Um imageboard inspirado diretamente em Lain, onde se discute segurança, programação, filosofia da tecnologia e a condição de existir online. Sem perfis, sem likes, sem algoritmo. Apenas texto.
+    </p>
+
+    <p>
+      <strong>r/unixporn</strong> é o museu vivo. Milhares de screenshots de ambientes Linux minuciosamente configurados — os chamados <em>rices</em>. Cada post é uma declaração estética: a escolha do window manager, da paleta de cores, do terminal, da barra de status. Compartilhar seus <strong>dotfiles</strong> é um ato de vulnerabilidade técnica — é abrir o código-fonte da sua personalidade.
+    </p>
+
+    <p>
+      O <strong>old web revival</strong> também alimenta essa cultura. Pessoas recriando sites pessoais com HTML cru no Neocities, resgatando a filosofia de uma internet feita por indivíduos, não por plataformas. Cada site é um servidor. Cada página é propriedade do seu criador.
+    </p>
+
+    <div class="quote-block">
+      A web deveria ser estranha, pessoal e feita à mão. Não um feed infinito de conteúdo otimizado por algoritmos para capturar atenção. Cada página deveria refletir uma <em>mente</em>, não uma <em>marca</em>.
+    </div>
+  </section>
+
+  <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
+
+  <!-- SECTION: DEFINIÇÃO -->
+  <section id="definicao" class="fade-section">
+    <div class="section-label">// 007</div>
+    <h2><span class="hash">#</span> Definição Final</h2>
+
+    <div class="quote-block" style="border-left-color: var(--blue-cold);">
+      "É uma mistura de <em>Frutiger Aero</em> — o otimismo tecnológico do início dos 2000 — que deu errado e se transformou em <em>Cyber-Grunge</em>. Focado em funcionalidade, privacidade, terminais Linux e a nostalgia profunda de uma internet que ainda era misteriosa. Onde cada conexão era um ato deliberado e cada byte baixado custava tempo."
+    </div>
+
+    <p>
+      Não é uma estética para consumir. É uma estética para <strong>construir</strong>. Você não adere ao Wired Architect comprando um ThinkPad no eBay. Você adere quando decide que vai entender como as coisas funcionam — mesmo que ninguém te peça, mesmo que ninguém veja, mesmo que o mundo inteiro já tenha seguido em frente para a próxima interface brilhante.
+    </p>
+
+    <div class="terminal-block">
+      <span class="prompt">$</span> <span class="command">cat /etc/motd</span><br>
+      <br>
+      <span class="output">  Present day...</span><br>
+      <span class="output">  Present time...</span><br>
+      <span class="output">  Hahahaha!</span><br>
+      <br>
+      <span class="prompt">$</span> <span class="cursor-blink">█</span>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="glyph">⟁</div>
+    <p>the wired architect — manifesto v1.0</p>
+    <p style="margin-top: 0.4rem; color: #2a2a36;">close the world . open the nExt</p>
+  </footer>
+
+</div>
+
+<script>
+// === NOISE CANVAS ===
+const noiseEl = document.getElementById('noise');
+const noiseCanvas = document.createElement('canvas');
+noiseCanvas.width = 256;
+noiseCanvas.height = 256;
+const noiseCtx = noiseCanvas.getContext('2d');
+
+function generateNoise() {
+  const imageData = noiseCtx.createImageData(256, 256);
+  const data = imageData.data;
+  for (let i = 0; i < data.length; i += 4) {
+    const v = Math.random() * 255;
+    data[i] = data[i+1] = data[i+2] = v;
+    data[i+3] = 255;
+  }
+  noiseCtx.putImageData(imageData, 0, 0);
+  noiseEl.style.backgroundImage = `url(${noiseCanvas.toDataURL()})`;
+  noiseEl.style.backgroundRepeat = 'repeat';
+}
+generateNoise();
+setInterval(generateNoise, 120);
+
+// === BOOT SEQUENCE ===
+const bootLines = [
+  { text: 'BIOS v2.04 — POST check OK', delay: 80 },
+  { text: 'Memory: 512MB SDRAM ... verified', delay: 60 },
+  { text: 'IDE0: WDC WD800JB-00JJA0 (80GB)', delay: 70 },
+  { text: 'Loading GRUB...', delay: 200 },
+  { text: '', delay: 100 },
+  { text: ':: Arch Linux (kernel 2.6.32-arch)', delay: 150 },
+  { text: ':: Loading modules...', delay: 80 },
+  { text: '   [OK] net.eth0', delay: 60 },
+  { text: '   [OK] sound.alsa', delay: 50 },
+  { text: '   [OK] daemon.sshd', delay: 50 },
+  { text: '', delay: 80 },
+  { text: 'login: architect', delay: 300 },
+  { text: 'password: ********', delay: 200 },
+  { text: '', delay: 100 },
+  { text: 'Last login: Sat Feb 14 03:14:07 2026', delay: 60 },
+  { text: '', delay: 80 },
+  { text: '$ cat /etc/motd', delay: 200 },
+  { text: '', delay: 100 },
+  { text: '  "Close the world, open the nExt."', delay: 150 },
+  { text: '', delay: 100 },
+  { text: '$ startx --manifest', delay: 400 },
+];
+
+const bootText = document.getElementById('bootText');
+const bootScreen = document.getElementById('bootScreen');
+const mainContent = document.getElementById('mainContent');
+
+async function runBoot() {
+  let fullText = '';
+  for (const line of bootLines) {
+    fullText += line.text + '\n';
+    bootText.innerHTML = fullText + '<span class="cursor-blink">█</span>';
+    await new Promise(r => setTimeout(r, line.delay));
+  }
+  await new Promise(r => setTimeout(r, 500));
+  bootScreen.classList.add('hidden');
+  mainContent.classList.add('visible');
+}
+
+runBoot();
+
+// === SCROLL PROGRESS ===
+window.addEventListener('scroll', () => {
+  const scrollTop = document.documentElement.scrollTop;
+  const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = (scrollTop / scrollHeight) * 100;
+  document.getElementById('scrollProgress').style.width = progress + '%';
+});
+
+// === FADE IN ON SCROLL ===
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.fade-section').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
