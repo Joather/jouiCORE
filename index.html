@@ -9,7 +9,7 @@
         <link rel="preconnect"
             href="https://fonts.gstatic.com"
             crossorigin>
-        <link href="https://fonts.googleapis.com/css2family=IBM+Plex+Mono:wgth@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wgth@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="style.css">
     </head>
     <body>
@@ -49,22 +49,43 @@
             <section id="pilares">
               <h2>Os Pilares</h2>
 
-              <h3>O Tátil</h3>
-              <p>
-                CDs fisicos como forma de preservação digital. Teclados mecânicos barulhentos. ThinkPads antigos - máquinas feitas para durar. não para impressionar.
-              </p>
+                <div class="pillar">
+                    <div class="pillar-icon">[ hardware ]</div>
+                    <h3>O Tátil</h3>
+                    <p>
+                    CDs fisicos como forma de preservação digital. Teclados mecânicos barulhentos. ThinkPads antigos - máquinas feitas para durar. não para impressionar.
+                    </p>
+                    <div class="pillar-tag">tangivel > efêmero</div>
+                </div>
 
-              <h3>O Contruido</h3>
-              <p>
-              <em>Arch Linux</em> não é apenas um sistema operacional. È um simbolo de autossuficiência. Instalar Arch é dizer <em>"eu prefiro construir do zero a aceitar o que me deram pronto"</em>
-              </p>
+                <div class="pillar">
+                    <div class="pillar-icon">[ software ]</div>
+                    <h3>O Contruido</h3>
+                    <p>
+                    <em>Arch Linux</em> não é apenas um sistema operacional. È um simbolo de autossuficiência. Instalar Arch é dizer <em>"eu prefiro construir do zero a aceitar o que me deram pronto"</em>
+                    </p>
+                    <div class="pillar-tag">controle > conveniência</div>
+                </div>
 
-              <h3>Backend Total</h3>
-              <p>
-              A verdade qualquer sistema está nas camas que ninguém vê. Protocolos de rede. arquitetura de banco de dados. segurança. criptografia.
-              </p>
+                <div class="pillar">
+                    <div class="pillar-icon">[ mindset ]</div>
+                    <h3>Backend Total</h3>
+                    <p>
+                    A verdade qualquer sistema está nas camas que ninguém vê. Protocolos de rede. arquitetura de banco de dados. segurança. criptografia.
+                    </p>
+                    <div class="pillar-tag">estrutura > superfície</div>
+                </div>
+
+                <div class="terminal-block">
+                    <span class="comment"># a estética em três comandos</span><br>
+                    <span class="prompt">$</span> <span class="command">pacman -S base base-devel</span> <span class="comment"># contrua do zero</span><br>
+                    <span class="prompt">$</span> <span class="command">vim ~/.config/everything</span> <span class="comment"># configure tudo manualmente</span><br>
+                    <span class="prommt">$</span> <span class="command">systemctl disable display-manager</span> <span class="comment"># quem precisa de GUI?</span><br>
+                    <br>
+                    <span class="output">:: jouiARCH-TECTURE doesn't use defaults.</span>
+                </div>
+
             </section>
-            
         </main>
 
         <!-- ""FOOTER -->

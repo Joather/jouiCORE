@@ -11,7 +11,7 @@
 	--blue-glow: #5ba0c0; /* efeitos de brilho */
 	--blue-dim: #1e3a4d; /* bordas, detalhe sutil */
 	--blue-accent: #7ec8e3; /* destaques, inline code */
-	
+
 	/* Texto: hierarquia de visibilidade */
 	--text-primary: #b8c4cc; /* texto principal */
 	--text-dim: #5a6872; /* texto secundário */
@@ -103,7 +103,7 @@ strong {
 }
 
 em {
-	color: var(--white-flicker);
+	color: var(--blue-cold);
 	font-style: italic;
 }
 
@@ -133,6 +133,30 @@ nav a:hover {
 /* ¨¨SEÇÕES */
 section {
 	margin-bottom: 4rem;
+}
+
+/* """PILLAR CARD */
+.pillar {
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    border: 1px solid #151520;
+    background: var(--bg-surface);
+    transition: border-color 0.3s; /* suaviza hover */
+}
+
+.pillar:hover {
+    border-color: var(--blue-dim) /* borda azulada ao hover */
+}
+
+.pillar-tag {
+    display: inline-block;
+    font-size: 10px;
+    padding: 2px 8px;
+    border: 1px solid #1e1e2e;
+    color: var(--text-muted);
+    font-family: 'Space Mono', monospace;
+    margin-top: 0.8rem;
+    letter-spacing: 0.05rem;
 }
 
 /* ¨¨FOOTER */
