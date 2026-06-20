@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Etapa 04 — Tutorial Passo a Passo</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #08080d; --bg-surface: #0b0b13; --bg-elevated: #101018;
+  --blue-cold: #4a7c9b; --blue-glow: #5ba0c0; --blue-dim: #1e3a4d;
+  --blue-accent: #7ec8e3; --green-term: #4af626; --text-primary: #b8c4cc;
+  --text-dim: #5a6872; --text-muted: #3a4248; --red-dim: #8b3a3a;
+  --white-flicker: #d0dce4; --yellow-warn: #c9a84c; --purple-note: #7b68a8;
+}
+html { scroll-behavior: smooth; scrollbar-width: thin; scrollbar-color: var(--blue-dim) var(--bg); }
+body { font-family: 'IBM Plex Mono', monospace; background: var(--bg); color: var(--text-primary); line-height: 1.7; overflow-x: hidden; }
+
+.crt-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
+.crt-overlay::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.035) 2px, rgba(0,0,0,0.035) 4px); }
+.crt-overlay::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.3) 100%); }
+.ambient-glow { position: fixed; top: -200px; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(ellipse, rgba(74,124,155,0.04) 0%, transparent 70%); pointer-events: none; z-index: -1; }
+.scroll-bar { position: fixed; top: 0; left: 0; height: 2px; background: var(--blue-dim); box-shadow: 0 0 8px var(--blue-cold); z-index: 10001; width: 0%; transition: width 0.1s linear; }
+
+.wrapper { max-width: 820px; margin: 0 auto; padding: 2rem 2rem 6rem; }
+
+.guide-header { padding: 3rem 0 2.5rem; border-bottom: 1px solid var(--blue-dim); margin-bottom: 3rem; position: relative; }
+.guide-header::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100px; height: 1px; background: var(--blue-glow); box-shadow: 0 0 8px var(--blue-cold); }
+.step-badge { display: inline-block; font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--bg); background: var(--blue-cold); padding: 3px 10px; margin-bottom: 1rem; }
+.guide-header h1 { font-family: 'Space Mono', monospace; font-size: clamp(1.4rem, 3.5vw, 2rem); font-weight: 700; color: var(--white-flicker); letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 0.8rem; text-shadow: 0 0 20px rgba(91,160,192,0.15); }
+.guide-header .subtitle { font-size: 13px; color: var(--text-dim); font-style: italic; max-width: 580px; }
+.guide-header .subtitle em { color: var(--blue-cold); font-style: normal; }
+
+.roadmap { display: flex; gap: 2px; margin-bottom: 3rem; border: 1px solid #151520; overflow: hidden; }
+.roadmap-step { flex: 1; padding: 0.7rem 0.5rem; text-align: center; font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; background: var(--bg-surface); color: var(--text-muted); border-right: 1px solid #151520; }
+.roadmap-step:last-child { border-right: none; }
+.roadmap-step.active { background: var(--blue-dim); color: var(--white-flicker); box-shadow: inset 0 -2px 0 var(--blue-glow); }
+.roadmap-step.done { background: #0d1a12; color: #4af626; }
+.roadmap-step .num { display: block; font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+
+/* STEP CARD */
+.step-card {
+  border: 1px solid #151520;
+  margin-bottom: 2rem;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+.step-card:hover { border-color: var(--blue-dim); }
+
+.step-header {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  background: var(--bg-surface);
+  border-bottom: 1px solid #151520;
+}
+
+.step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--blue-dim);
+  border-right: 1px solid #151520;
+  padding: 1rem;
+}
+
+.step-info { padding: 1rem 1.2rem; }
+
+.step-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--white-flicker);
+  margin-bottom: 0.3rem;
+}
+
+.step-desc {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+/* FILE BADGE */
+.file-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 2px 8px;
+  margin-bottom: 0.3rem;
+  border: 1px solid #1e1e2e;
+}
+.file-badge.html { color: #c9a84c; border-color: #3a2e1a; background: #1a1508; }
+.file-badge.css  { color: var(--blue-cold); border-color: var(--blue-dim); background: #080d12; }
+.file-badge.js   { color: #4af626; border-color: #1a3a0d; background: #080d06; }
+
+.step-body { padding: 1.2rem 1.4rem; }
+
+/* WHERE BLOCK — mostra onde no arquivo */
+.where-block {
+  background: #060609;
+  border: 1px solid #1e1e2e;
+  border-left: 3px solid var(--yellow-warn);
+  margin: 0.8rem 0;
+  overflow-x: auto;
+}
+.where-header {
+  padding: 0.4rem 0.8rem;
+  background: #0a0a08;
+  border-bottom: 1px solid #1e1e2e;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--yellow-warn);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.where-block pre {
+  padding: 0.8rem 1rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--text-muted);
+  overflow-x: auto;
+}
+
+/* ADD BLOCK — o código novo */
+.add-block {
+  background: #060609;
+  border: 1px solid #1e1e2e;
+  border-left: 3px solid var(--green-term);
+  margin: 0.8rem 0;
+  overflow-x: auto;
+}
+.add-header {
+  padding: 0.4rem 0.8rem;
+  background: #060a06;
+  border-bottom: 1px solid #1e1e2e;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--green-term);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.add-block pre {
+  padding: 0.8rem 1rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  overflow-x: auto;
+}
+
+/* EXPLAIN BLOCK */
+.explain {
+  border: 1px solid #151520;
+  background: var(--bg-elevated);
+  padding: 0.8rem 1rem;
+  margin: 0.8rem 0;
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+.explain strong { color: var(--white-flicker); }
+.explain em { color: var(--blue-cold); font-style: italic; }
+
+/* SYNTAX */
+.tag { color: var(--blue-cold); }
+.attr { color: var(--yellow-warn); }
+.val { color: var(--green-term); }
+.cmt { color: #3a3a4a; font-style: italic; }
+.txt { color: var(--text-dim); }
+.kw { color: var(--purple-note); }
+.prop { color: var(--blue-accent); }
+.sel { color: var(--yellow-warn); }
+.fn { color: var(--yellow-warn); }
+.str { color: var(--green-term); }
+.dim { opacity: 0.4; }
+.new-line { color: var(--green-term); background: rgba(74, 246, 38, 0.05); display: block; margin: 0 -1rem; padding: 0 1rem; }
+
+h2 { font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--white-flicker); margin: 2.5rem 0 1.2rem; padding-bottom: 0.5rem; border-bottom: 1px solid #151520; }
+h2 .hash { color: var(--blue-dim); margin-right: 0.4rem; font-weight: 400; }
+
+p { font-size: 13.5px; margin-bottom: 1rem; }
+p.dim { color: var(--text-dim); }
+strong { color: var(--white-flicker); font-weight: 600; }
+em { color: var(--blue-cold); font-style: italic; }
+code { font-family: 'Space Mono', monospace; font-size: 11.5px; background: var(--bg-elevated); padding: 1px 5px; border: 1px solid #1a1a26; color: var(--blue-accent); }
+
+.ascii-divider { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text-muted); text-align: center; margin: 2.5rem 0; opacity: 0.5; letter-spacing: 0.3em; user-select: none; }
+
+.checklist { border: 1px solid #151520; background: var(--bg-surface); padding: 1.2rem 1.4rem; margin: 1.5rem 0; }
+.checklist-title { font-family: 'Space Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--text-muted); margin-bottom: 0.8rem; }
+.checklist-item { font-size: 12.5px; padding: 0.3rem 0; color: var(--text-dim); }
+.checklist-item .check { color: var(--green-term); margin-right: 0.5rem; }
+
+.guide-footer { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #111119; text-align: center; font-size: 11px; color: var(--text-muted); font-family: 'Space Mono', monospace; }
+.guide-footer .glyph { font-size: 16px; display: block; margin-bottom: 0.6rem; color: var(--blue-dim); text-shadow: 0 0 10px rgba(91,160,192,0.2); }
+
+.fade-in { opacity: 0; transform: translateY(10px); transition: opacity 0.5s ease, transform 0.5s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+.section-intro { background: var(--bg-surface); border: 1px solid #151520; padding: 1rem 1.2rem; margin-bottom: 2rem; font-size: 13px; color: var(--text-dim); }
+.section-intro strong { color: var(--white-flicker); }
+
+@media (max-width: 600px) {
+  .wrapper { padding: 1.5rem 1rem 4rem; }
+  .roadmap { flex-wrap: wrap; }
+  .roadmap-step { flex: none; width: 50%; }
+}
+</style>
+</head>
+<body>
+
+<div class="crt-overlay"></div>
+<div class="ambient-glow"></div>
+<div class="scroll-bar" id="scrollBar"></div>
+
+<div class="wrapper">
+
+  <header class="guide-header">
+    <div class="step-badge">tutorial — jouiARCH-TECTURE</div>
+    <h1>Etapa 04: Efeitos Especiais</h1>
+    <p class="subtitle">
+      Passo a passo completo — cada instrução diz em qual arquivo mexer, <em>onde exatamente</em> adicionar o código, e o que ele faz.
+    </p>
+  </header>
+
+  <div class="roadmap">
+    <div class="roadmap-step done"><span class="num">01</span> html base</div>
+    <div class="roadmap-step done"><span class="num">02</span> css base</div>
+    <div class="roadmap-step done"><span class="num">03</span> conteúdo</div>
+    <div class="roadmap-step active"><span class="num">04</span> efeitos</div>
+    <div class="roadmap-step"><span class="num">05</span> polish</div>
+  </div>
+
+  <!-- ========================================
+       PARTE 01 — HTML: OVERLAY LAYERS
+       ======================================== -->
+
+  <h2 class="fade-in"><span class="hash">#</span> Parte 01 — Camadas de efeito no HTML</h2>
+  <div class="section-intro fade-in">
+    Os efeitos visuais usam divs <strong>fixos</strong> que ficam em cima de toda a página. Eles precisam ser os <strong>primeiros elementos dentro de &lt;body&gt;</strong> — antes de qualquer conteúdo.
+  </div>
+
+  <!-- PASSO 01 -->
+  <div class="step-card fade-in">
+    <div class="step-header">
+      <div class="step-number">01</div>
+      <div class="step-info">
+        <div class="step-title">CRT Overlay — Scanlines & Vignette</div>
+        <p class="step-desc">Um div vazio que fica fixo sobre toda a tela. O visual vem do CSS.</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="file-badge html">📄 index.html</div>
+      <div class="where-block">
+        <div class="where-header">↓ encontre esta linha</div>
+        <pre>  <span class="tag">&lt;body&gt;</span></pre>
+      </div>
+      <div class="add-block">
+        <div class="add-header">+ adicione logo depois</div>
+        <pre>  <span class="tag">&lt;body&gt;</span>
+<span class="new-line">    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"crt-overlay"</span><span class="tag">&gt;&lt;/div&gt;</span></span></pre>
+      </div>
+      <div class="explain">
+        <strong>O que é:</strong> Um div que cobre toda a tela (via CSS: <em>position: fixed, inset: 0</em>). Ele não tem conteúdo próprio — os efeitos visuais vêm de <code>::before</code> (scanlines) e <code>::after</code> (vignette), que adicionaremos no CSS em seguida. <code>pointer-events: none</code> faz os cliques passarem por ele.
+      </div>
+    </div>
+  </div>
+
+  <!-- PASSO 02 -->
+  <div class="step-card fade-in">
+    <div class="step-header">
+      <div class="step-number">02</div>
+      <div class="step-info">
+        <div class="step-title">Noise — Div para o ruído estático</div>
+        <p class="step-desc">Elemento onde o JavaScript vai inserir a textura de noise via Canvas.</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="file-badge html">📄 index.html</div>
+      <div class="where-block">
+        <div class="where-header">↓ encontre esta linha (que você acabou de adicionar)</div>
+        <pre>    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"crt-overlay"</span><span class="tag">&gt;&lt;/div&gt;</span></pre>
+      </div>
+      <div class="add-block">
+        <div class="add-header">+ adicione na linha seguinte</div>
+        <pre>    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"crt-overlay"</span><span class="tag">&gt;&lt;/div&gt;</span>
+<span class="new-line">    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"noise"</span> <span class="attr">id</span>=<span class="val">"noise"</span><span class="tag">&gt;&lt;/div&gt;</span></span></pre>
+      </div>
+      <div class="explain">
+        <strong>O que é:</strong> Mais um div fixo, vazio agora. O <code>id="noise"</code> é para o JavaScript conseguir achar ele depois via <code>getElementById('noise')</code> e injetar a textura de pixels aleatórios como <em>background-image</em>.
+      </div>
+    </div>
+  </div>
+
+  <!-- PASSO 03 -->
+  <div class="step-card fade-in">
+    <div class="step-header">
+      <div class="step-number">03</div>
+      <div class="step-info">
+        <div class="step-title">Scroll Progress — Barra de progresso</div>
+        <p class="step-desc">Linha fina no topo que cresce conforme a página é rolada.</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="file-badge html">📄 index.html</div>
+      <div class="where-block">
+        <div class="where-header">↓ encontre</div>
+        <pre>    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"noise"</span> <span class="attr">id</span>=<span class="val">"noise"</span><span class="tag">&gt;&lt;/div&gt;</span></pre>
+      </div>
+      <div class="add-block">
+        <div class="add-header">+ adicione na linha seguinte</div>
+        <pre>    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"noise"</span> <span class="attr">id</span>=<span class="val">"noise"</span><span class="tag">&gt;&lt;/div&gt;</span>
+<span class="new-line">    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"scroll-progress"</span> <span class="attr">id</span>=<span class="val">"scrollProgress"</span><span class="tag">&gt;&lt;/div&gt;</span></span></pre>
+      </div>
+      <div class="explain">
+        <strong>O que é:</strong> Um div fixo no topo da tela, com <em>width: 0%</em> inicialmente. O JavaScript vai aumentando o <code>width</code> de 0% a 100% conforme você rola a página.
+      </div>
+    </div>
+  </div>
+
+  <!-- PASSO 04 -->
+  <div class="step-card fade-in">
+    <div class="step-header">
+      <div class="step-number">04</div>
+      <div class="step-info">
+        <div class="step-title">Ambient Glow — Luz azulada no topo</div>
+        <p class="step-desc">Gradiente radial sutil que emula o brilho difuso de um monitor.</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="file-badge html">📄 index.html</div>
+      <div class="where-block">
+        <div class="where-header">↓ encontre</div>
+        <pre>    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"scroll-progress"</span> <span class="attr">id</span>=<span class="val">"scrollProgress"</span><span class="tag">&gt;&lt;/div&gt;</span></pre>
+      </div>
+      <div class="add-block">
+        <div class="add-header">+ adicione na linha seguinte</div>
+        <pre>    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"scroll-progress"</span> <span class="attr">id</span>=<span class="val">"scrollProgress"</span><span class="tag">&gt;&lt;/div&gt;</span>
+<span class="new-line">    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"ambient-glow"</span><span class="tag">&gt;&lt;/div&gt;</span></span></pre>
+      </div>
+      <div class="explain">
+        <strong>O que é:</strong> Um div fixo posicionado acima do topo da tela (<em>top: -200px</em>) com um gradiente radial azulado bem opaco (4%). Dá a sensação de luz emanando de cima da página sem chamar atenção. Não precisa de JavaScript — é CSS puro.
+      </div>
+    </div>
+  </div>
+
+  <!-- PASSO 05 -->
+  <div class="step-card fade-in">
+    <div class="step-header">
+      <div class="step-number">05</div>
+      <div class="step-info">
+        <div class="step-title">Boot Screen — Tela de inicialização</div>
+        <p class="step-desc">Overlay que cobre o site inteiro e exibe o texto de boot. Desaparece quando o JS termina de rodar.</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="file-badge html">📄 index.html</div>
+      <div class="where-block">
+        <div class="where-header">↓ encontre</div>
+        <pre>    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"ambient-glow"</span><span class="tag">&gt;&lt;/div&gt;</span></pre>
+      </div>
+      <div class="add-block">
+        <div class="add-header">+ adicione na linha seguinte</div>
+        <pre>    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"ambient-glow"</span><span class="tag">&gt;&lt;/div&gt;</span>
+
+<span class="new-line">    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"boot-screen"</span> <span class="attr">id</span>=<span class="val">"bootScreen"</span><span class="tag">&gt;</span></span>
+<span class="new-line">        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"boot-text"</span> <span class="attr">id</span>=<span class="val">"bootText"</span><span class="tag">&gt;&lt;/div&gt;</span></span>
+<span class="new-line">    <span class="tag">&lt;/div&gt;</span></span></pre>
+      </div>
+      <div class="explain">
+        <strong>O que é:</strong> Um div que cobre 100% da tela (<em>position: fixed, z-index: 10000</em>) com fundo preto. O <code>.boot-text</code> é onde o JavaScript vai injetando as linhas de texto uma por uma. Quando o boot termina, o JS adiciona a classe <em>.hidden</em> nele, que o faz desaparecer com uma transição de opacidade.
+      </div>
+    </div>
+  </div>
+
+  <!-- PASSO 06 -->
+  <div class="step-card fade-in">
+    <div class="step-header">
+      <div class="step-number">06</div>
+      <div class="step-info">
+        <div class="step-title">Main Wrapper — Envolver o conteúdo</div>
+        <p class="step-desc">Todo o site precisa ficar invisível durante o boot. Para isso, envolvemos tudo em um div que começa com opacity: 0.</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="file-badge html">📄 index.html</div>
+      <div class="where-block">
+        <div class="where-header">↓ encontre (após a boot-screen)</div>
+        <pre>    <span class="tag">&lt;/div&gt;</span> <span class="cmt">&lt;!-- fim do boot-screen --&gt;</span>
+
+    <span class="cmt">&lt;!-- ¨¨HEADER --&gt;</span>
+    <span class="tag">&lt;header&gt;</span></pre>
+      </div>
+      <div class="add-block">
+        <div class="add-header">+ envolva TODO o conteúdo neste div</div>
+        <pre>    <span class="tag">&lt;/div&gt;</span> <span class="cmt">&lt;!-- fim do boot-screen --&gt;</span>
+
+<span class="new-line">    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"main-wrapper"</span> <span class="attr">id</span>=<span class="val">"mainContent"</span><span class="tag">&gt;</span></span>
+
+        <span class="cmt">&lt;!-- ¨¨HEADER --&gt;</span>
+        <span class="tag">&lt;header&gt;</span>...
+        <span class="tag">&lt;/header&gt;</span>
+
+        <span class="cmt">&lt;!-- nav, seções, footer... tudo aqui dentro --&gt;</span>
+
+<span class="new-line">    <span class="tag">&lt;/div&gt;</span> <span class="cmt">&lt;!-- fim do main-wrapper --&gt;</span></span></pre>
+      </div>
+      <div class="explain">
+        <strong>O que é:</strong> Um wrapper que engloba header, nav, todas as seções e o footer. No CSS, ele começa com <em>opacity: 0</em>. Quando o boot termina, o JS adiciona a classe <em>.visible</em> nele, que o anima para <em>opacity: 1</em>. Sem isso, o site apareceria junto com o boot.
+      </div>
+    </div>
+  </div>
+
+  <!-- PASSO 07 -->
+  <div class="step-card fade-in">
+    <div class="step-header">
+      <div class="step-number">07</div>
+      <div class="step-info">
+        <div class="step-title">fade-section — Marcar as seções para fade-in</div>
+        <p class="step-desc">Adicionar a classe em cada seção e no nav para que o IntersectionObserver as encontre.</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="file-badge html">📄 index.html</div>
+      <div class="where-block">
+        <div class="where-header">↓ encontre cada uma dessas tags</div>
+        <pre>    <span class="tag">&lt;nav&gt;</span>
+
+    <span class="tag">&lt;section</span> <span class="attr">id</span>=<span class="val">"arquetipo"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;section</span> <span class="attr">id</span>=<span class="val">"pilares"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;section</span> <span class="attr">id</span>=<span class="val">"atmosfera"</span><span class="tag">&gt;</span>
+    <span class="cmt">... todas as seções</span></pre>
+      </div>
+      <div class="add-block">
+        <div class="add-header">+ adicione class="fade-section" em todas</div>
+        <pre>    <span class="tag">&lt;nav</span> <span class="new-line"><span class="attr">class</span>=<span class="val">"fade-section"</span></span><span class="tag">&gt;</span>
+
+    <span class="tag">&lt;section</span> <span class="attr">id</span>=<span class="val">"arquetipo"</span> <span class="new-line"><span class="attr">class</span>=<span class="val">"fade-section"</span></span><span class="tag">&gt;</span>
+    <span class="tag">&lt;section</span> <span class="attr">id</span>=<span class="val">"pilares"</span> <span class="new-line"><span class="attr">class</span>=<span class="val">"fade-section"</span></span><span class="tag">&gt;</span>
+    <span class="cmt">... mesmo em todas as seções</span></pre>
+      </div>
+      <div class="explain">
+        <strong>O que é:</strong> Uma marcação para o JavaScript. No script, vamos usar <code>querySelectorAll('.fade-section')</code> para pegar todos esses elementos de uma vez e monitorá-los com o IntersectionObserver. Quando cada um entrar na tela, a classe <em>.visible</em> é adicionada e o CSS faz o fade-in.
+      </div>
+    </div>
+  </div>
+
+  <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
+
+  <!-- ========================================
+       PARTE 02 — CSS: EFEITOS
+       ======================================== -->
+
+  <h2 class="fade-in"><span class="hash">#</span> Parte 02 — CSS dos efeitos</h2>
+  <div class="section-intro fade-in">
+    Abra o <strong>style.css</strong>. Todo este bloco vai no topo do arquivo — logo depois do <code>/* ""RESET */</code> e antes do <code>/* ¨¨BASE DO DOCUMENTO */</code>. Vamos adicionar tudo de uma vez.
+  </div>
+
+  <!-- PASSO 08 -->
+  <div class="step-card fade-in">
+    <div class="step-header">
+      <div class="step-number">08</div>
+      <div class="step-info">
+        <div class="step-title">CSS do CRT Overlay</div>
+        <p class="step-desc">Scanlines via repeating-linear-gradient e vignette via radial-gradient.</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="file-badge css">🎨 style.css</div>
+      <div class="where-block">
+        <div class="where-header">↓ encontre (depois do reset)</div>
+        <pre><span class="sel">*::after</span> {
+  ...
+}
+
+<span class="cmt">/* ¨¨BASE DO DOCUMENTO */</span>
+<span class="sel">html</span> {</pre>
+      </div>
+      <div class="add-block">
+        <div class="add-header">+ adicione entre o reset e o /* ¨¨BASE DO DOCUMENTO */</div>
+        <pre><span class="cmt">/* """CRT OVERLAY */</span>
+<span class="sel">.crt-overlay</span> {
+    <span class="prop">position</span>: <span class="val">fixed</span>;
+    <span class="prop">inset</span>: <span class="val">0</span>;
+    <span class="prop">pointer-events</span>: <span class="val">none</span>;
+    <span class="prop">z-index</span>: <span class="val">9999</span>;
+}
+
+<span class="sel">.crt-overlay::before</span> {
+    <span class="prop">content</span>: <span class="val">''</span>;
+    <span class="prop">position</span>: <span class="val">absolute</span>;
+    <span class="prop">inset</span>: <span class="val">0</span>;
+    <span class="prop">background</span>: <span class="val">repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.04) 2px,
+        rgba(0, 0, 0, 0.04) 4px
+    )</span>;
+}
+
+<span class="sel">.crt-overlay::after</span> {
+    <span class="prop">content</span>: <span class="val">''</span>;
+    <span class="prop">position</span>: <span class="val">absolute</span>;
+    <span class="prop">inset</span>: <span class="val">0</span>;
+    <span class="prop">background</span>: <span class="val">radial-gradient(
+        ellipse at center,
+        transparent 50%,
+        rgba(0, 0, 0, 0.35) 100%
+    )</span>;
+}</pre>
+      </div>
+      <div class="explain">
+        <strong>::before</strong> cria as scanlines: um gradiente que repete a cada 4px (2px transparente + 2px preto a 4% de opacidade). <strong>::after</strong> cria o vignette: um gradiente radial que vai de transparente no centro para preto nas bordas. <code>inset: 0</code> é uma abreviação para <em>top:0; right:0; bottom:0; left:0</em>.
+      </div>
+    </div>
+  </div>
+
+  <!-- PASSO 09 -->
+  <div class="step-card fade-in">
+    <div class="step-header">
+      <div class="step-number">09</div>
+      <div class="step-info">
+        <div class="step-title">CSS do Noise, Scroll Progress e Ambient Glow</div>
+        <p class="step-desc">Os três elementos fixos restantes.</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="file-badge css">🎨 style.css</div>
+      <div class="where-block">
+        <div class="where-header">↓ encontre (logo após o css do crt-overlay que você acabou de adicionar)</div>
+        <pre><span class="sel">.crt-overlay::after</span> {
+  ...
+}
+
+<span class="cmt">/* ¨¨BASE DO DOCUMENTO */</span></pre>
+      </div>
+      <div class="add-block">
+        <div class="add-header">+ adicione entre eles</div>
+        <pre><span class="cmt">/* """NOISE */</span>
+<span class="sel">.noise</span> {
+    <span class="prop">position</span>: <span class="val">fixed</span>;
+    <span class="prop">inset</span>: <span class="val">0</span>;
+    <span class="prop">pointer-events</span>: <span class="val">none</span>;
+    <span class="prop">z-index</span>: <span class="val">9998</span>;
+    <span class="prop">opacity</span>: <span class="val">0.03</span>;
+}
+
+<span class="cmt">/* """SCROLL PROGRESS */</span>
+<span class="sel">.scroll-progress</span> {
+    <span class="prop">position</span>: <span class="val">fixed</span>;
+    <span class="prop">top</span>: <span class="val">0</span>;
+    <span class="prop">left</span>: <span class="val">0</span>;
+    <span class="prop">height</span>: <span class="val">1px</span>;
+    <span class="prop">background</span>: <span class="val">var(--blue-dim)</span>;
+    <span class="prop">box-shadow</span>: <span class="val">0 0 6px var(--blue-cold)</span>;
+    <span class="prop">z-index</span>: <span class="val">10001</span>;
+    <span class="prop">width</span>: <span class="val">0%</span>;
+    <span class="prop">transition</span>: <span class="val">width 0.1s linear</span>;
+}
+
+<span class="cmt">/* """AMBIENT GLOW */</span>
+<span class="sel">.ambient-glow</span> {
+    <span class="prop">position</span>: <span class="val">fixed</span>;
+    <span class="prop">top</span>: <span class="val">-200px</span>;
+    <span class="prop">left</span>: <span class="val">50%</span>;
+    <span class="prop">transform</span>: <span class="val">translateX(-50%)</span>;
+    <span class="prop">width</span>: <span class="val">600px</span>;
+    <span class="prop">height</span>: <span class="val">400px</span>;
+    <span class="prop">background</span>: <span class="val">radial-gradient(
+        ellipse,
+        rgba(74, 124, 155, 0.04) 0%,
+        transparent 70%
+    )</span>;
+    <span class="prop">pointer-events</span>: <span class="val">none</span>;
+    <span class="prop">z-index</span>: <span class="val">-1</span>;
+}</pre>
+      </div>
+      <div class="explain">
+        <strong>Noise:</strong> <em>opacity: 0.03</em> — quase invisível, só dá a textura. O JavaScript preenche o <em>background-image</em> dinamicamente. <strong>Scroll Progress:</strong> começa com <em>width: 0%</em> e o JS vai aumentando esse valor. A <em>transition</em> suaviza o movimento. <strong>Ambient Glow:</strong> <em>z-index: -1</em> faz ele ficar atrás de todo o conteúdo. <em>top: -200px</em> deixa metade dele fora da tela, o que cria o efeito de luz vindo de cima.
+      </div>
+    </div>
+  </div>
+
+  <!-- PASSO 10 -->
+  <div class="step-card fade-in">
+    <div class="step-header">
+      <div class="step-number">10</div>
+      <div class="step-info">
+        <div class="step-title">CSS da Boot Screen e Main Wrapper</div>
+        <p class="step-desc">O overlay de boot e o container do site que começa invisível.</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="file-badge css">🎨 style.css</div>
+      <div class="where-block">
+        <div class="where-header">↓ encontre (após o ambient-glow)</div>
+        <pre><span class="sel">.ambient-glow</span> {
+  ...
+}
+
+<span class="cmt">/* ¨¨BASE DO DOCUMENTO */</span></pre>
+      </div>
+      <div class="add-block">
+        <div class="add-header">+ adicione entre eles</div>
+        <pre><span class="cmt">/* """BOOT SCREEN */</span>
+<span class="sel">.boot-screen</span> {
+    <span class="prop">position</span>: <span class="val">fixed</span>;
+    <span class="prop">inset</span>: <span class="val">0</span>;
+    <span class="prop">background</span>: <span class="val">var(--bg)</span>;
+    <span class="prop">z-index</span>: <span class="val">10000</span>;
+    <span class="prop">display</span>: <span class="val">flex</span>;
+    <span class="prop">align-items</span>: <span class="val">center</span>;
+    <span class="prop">justify-content</span>: <span class="val">center</span>;
+    <span class="prop">transition</span>: <span class="val">opacity 0.8s ease, visibility 0.8s ease</span>;
+}
+
+<span class="sel">.boot-screen.hidden</span> {
+    <span class="prop">opacity</span>: <span class="val">0</span>;
+    <span class="prop">visibility</span>: <span class="val">hidden</span>;
+}
+
+<span class="sel">.boot-text</span> {
+    <span class="prop">color</span>: <span class="val">var(--green-term)</span>;
+    <span class="prop">font-family</span>: <span class="val">'Space Mono', monospace</span>;
+    <span class="prop">font-size</span>: <span class="val">13px</span>;
+    <span class="prop">white-space</span>: <span class="val">pre-wrap</span>;
+    <span class="prop">max-width</span>: <span class="val">620px</span>;
+    <span class="prop">padding</span>: <span class="val">2rem</span>;
+    <span class="prop">text-shadow</span>: <span class="val">0 0 6px rgba(74, 246, 38, 0.4)</span>;
+    <span class="prop">line-height</span>: <span class="val">1.6</span>;
+}
+
+<span class="cmt">/* """MAIN WRAPPER */</span>
+<span class="sel">.main-wrapper</span> {
+    <span class="prop">max-width</span>: <span class="val">780px</span>;
+    <span class="prop">margin</span>: <span class="val">0 auto</span>;
+    <span class="prop">padding</span>: <span class="val">3rem 2rem 6rem</span>;
+    <span class="prop">opacity</span>: <span class="val">0</span>;
+    <span class="prop">transition</span>: <span class="val">opacity 1s ease 0.3s</span>;
+}
+
+<span class="sel">.main-wrapper.visible</span> {
+    <span class="prop">opacity</span>: <span class="val">1</span>;
+}</pre>
+      </div>
+      <div class="explain">
+        <strong>Boot Screen:</strong> <em>z-index: 10000</em> garante que fica acima de tudo (exceto o scroll progress que é 10001). A classe <em>.hidden</em> é adicionada pelo JS quando o boot termina — ela seta <em>opacity: 0</em> e <em>visibility: hidden</em>, que somem com transição suave. <strong>Main Wrapper:</strong> começa com <em>opacity: 0</em> (invisível). O JS adiciona <em>.visible</em> que ativa <em>opacity: 1</em>. O <em>0.3s</em> no final do transition é um <strong>delay</strong> — espera 0.3s depois do boot sumir antes de começar a aparecer.
+      </div>
+    </div>
+  </div>
+
+  <!-- PASSO 11 -->
+  <div class="step-card fade-in">
+    <div class="step-header">
+      <div class="step-number">11</div>
+      <div class="step-info">
+        <div class="step-title">CSS das Animações — @keyframes + fade-section</div>
+        <p class="step-desc">Flicker no h1, cursor piscando, e as seções surgindo no scroll.</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="file-badge css">🎨 style.css</div>
+      <div class="where-block">
+        <div class="where-header">↓ encontre (o h1 que você já tem)</div>
+        <pre><span class="sel">h1</span> {
+    <span class="prop">font-family</span>: <span class="val">'Space Mono', monospace</span>;
+    <span class="prop">font-size</span>: <span class="val">clamp(1.6rem, 4vw, 2.4rem)</span>;
+    ...
+}</pre>
+      </div>
+      <div class="add-block">
+        <div class="add-header">+ adicione a animation no h1 existente, e os @keyframes antes dele</div>
+        <pre><span class="cmt">/* """ANIMAÇÕES */</span>
+<span class="kw">@keyframes</span> <span class="val">subtle-flicker</span> {
+    <span class="val">0%</span>, <span class="val">100%</span> { <span class="prop">opacity</span>: <span class="val">1</span>; }
+    <span class="val">92%</span>       { <span class="prop">opacity</span>: <span class="val">1</span>; }
+    <span class="val">93%</span>       { <span class="prop">opacity</span>: <span class="val">0.88</span>; }
+    <span class="val">94%</span>       { <span class="prop">opacity</span>: <span class="val">1</span>; }
+    <span class="val">95%</span>       { <span class="prop">opacity</span>: <span class="val">0.92</span>; }
+    <span class="val">96%</span>       { <span class="prop">opacity</span>: <span class="val">1</span>; }
+}
+
+<span class="kw">@keyframes</span> <span class="val">blink</span> {
+    <span class="val">0%</span>, <span class="val">100%</span> { <span class="prop">opacity</span>: <span class="val">1</span>; }
+    <span class="val">50%</span>       { <span class="prop">opacity</span>: <span class="val">0</span>; }
+}
+
+<span class="sel">.cursor-blink</span> {
+    <span class="prop">animation</span>: <span class="val">blink 0.7s steps(1) infinite</span>;
+}
+
+<span class="cmt">/* Adicione a linha de animation no h1 que já existe */</span>
+<span class="sel">h1</span> {
+    ...seus estilos existentes...
+    <span class="new-line"><span class="prop">animation</span>: <span class="val">subtle-flicker 4s ease-in-out infinite</span>;</span>
+}
+
+<span class="cmt">/* """FADE-IN NO SCROLL */</span>
+<span class="sel">.fade-section</span> {
+    <span class="prop">opacity</span>: <span class="val">0</span>;
+    <span class="prop">transform</span>: <span class="val">translateY(12px)</span>;
+    <span class="prop">transition</span>: <span class="val">opacity 0.6s ease, transform 0.6s ease</span>;
+}
+
+<span class="sel">.fade-section.visible</span> {
+    <span class="prop">opacity</span>: <span class="val">1</span>;
+    <span class="prop">transform</span>: <span class="val">translateY(0)</span>;
+}</pre>
+      </div>
+      <div class="explain">
+        <strong>subtle-flicker:</strong> de 0% a 91% fica estável em opacity 1. Entre 92% e 96% (num ciclo de 4s = cerca de 0.16s) a opacidade cai levemente duas vezes. Praticamente imperceptível — é o que torna o efeito bom. <strong>blink com steps(1):</strong> <em>steps(1)</em> remove a suavização — o cursor vai de 100% para 0% sem transição, como um cursor real de terminal. <strong>fade-section:</strong> começa deslocado 12px pra baixo e invisível. Quando o JS adiciona <em>.visible</em>, volta para a posição normal com fade.
+      </div>
+    </div>
+  </div>
+
+  <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
+
+  <!-- ========================================
+       PARTE 03 — JAVASCRIPT
+       ======================================== -->
+
+  <h2 class="fade-in"><span class="hash">#</span> Parte 03 — JavaScript</h2>
+  <div class="section-intro fade-in">
+    Abra o <strong>script.js</strong>. Ele está vazio agora. Vamos adicionar os 4 sistemas em ordem. Cada bloco vai após o anterior — sem nada entre eles além dos comentários.
+  </div>
+
+  <!-- PASSO 12 -->
+  <div class="step-card fade-in">
+    <div class="step-header">
+      <div class="step-number">12</div>
+      <div class="step-info">
+        <div class="step-title">JS — Noise Generator (Canvas API)</div>
+        <p class="step-desc">Primeiro bloco do script.js. Gera pixels aleatórios e os aplica como background.</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="file-badge js">⚡ script.js</div>
+      <div class="add-block">
+        <div class="add-header">+ escreva no início do arquivo</div>
+        <pre><span class="cmt">// """NOISE — ruído estático via Canvas API</span>
+
+<span class="kw">const</span> noiseEl = document.<span class="fn">getElementById</span>(<span class="str">'noise'</span>);
+
+<span class="kw">const</span> noiseCanvas = document.<span class="fn">createElement</span>(<span class="str">'canvas'</span>);
+noiseCanvas.width  = <span class="val">256</span>;
+noiseCanvas.height = <span class="val">256</span>;
+<span class="kw">const</span> noiseCtx = noiseCanvas.<span class="fn">getContext</span>(<span class="str">'2d'</span>);
+
+<span class="kw">function</span> <span class="fn">generateNoise</span>() {
+    <span class="kw">const</span> imageData = noiseCtx.<span class="fn">createImageData</span>(<span class="val">256</span>, <span class="val">256</span>);
+    <span class="kw">const</span> data = imageData.data;
+
+    <span class="kw">for</span> (<span class="kw">let</span> i = <span class="val">0</span>; i &lt; data.length; i += <span class="val">4</span>) {
+        <span class="kw">const</span> v    = Math.<span class="fn">random</span>() * <span class="val">255</span>;
+        data[i]     = v;   <span class="cmt">// R</span>
+        data[i + <span class="val">1</span>] = v;   <span class="cmt">// G</span>
+        data[i + <span class="val">2</span>] = v;   <span class="cmt">// B</span>
+        data[i + <span class="val">3</span>] = <span class="val">255</span>; <span class="cmt">// Alpha</span>
+    }
+
+    noiseCtx.<span class="fn">putImageData</span>(imageData, <span class="val">0</span>, <span class="val">0</span>);
+    noiseEl.style.backgroundImage = <span class="str">`url(${noiseCanvas.<span class="fn">toDataURL</span>()})`</span>;
+    noiseEl.style.backgroundRepeat = <span class="str">'repeat'</span>;
+}
+
+<span class="fn">generateNoise</span>();
+<span class="fn">setInterval</span>(generateNoise, <span class="val">120</span>);</pre>
+      </div>
+      <div class="explain">
+        <strong>createElement('canvas'):</strong> cria um canvas <em>fora do HTML</em> — só existe na memória. <strong>createImageData:</strong> cria um buffer de 256×256 pixels. Cada pixel são 4 posições no array (R, G, B, Alpha). Ao definir R=G=B com o mesmo valor aleatório, cada pixel fica numa tonalidade de cinza diferente. <strong>putImageData:</strong> escreve os pixels no canvas. <strong>toDataURL():</strong> converte o canvas numa string base64 (<em>data:image/png;base64,...</em>) que serve como URL de imagem. <strong>setInterval(fn, 120):</strong> executa a função a cada 120ms — cria o efeito de noise "vivo".
+      </div>
+    </div>
+  </div>
+
+  <!-- PASSO 13 -->
+  <div class="step-card fade-in">
+    <div class="step-header">
+      <div class="step-number">13</div>
+      <div class="step-info">
+        <div class="step-title">JS — Boot Sequence (async/await)</div>
+        <p class="step-desc">Segundo bloco. Exibe linhas de texto uma por uma com delays, depois revela o site.</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="file-badge js">⚡ script.js</div>
+      <div class="add-block">
+        <div class="add-header">+ adicione após o bloco do noise</div>
+        <pre><span class="cmt">// """BOOT SEQUENCE</span>
+
+<span class="kw">const</span> bootLines = [
+    { <span class="attr">text</span>: <span class="str">'BIOS v2.04 — POST check OK'</span>,         <span class="attr">delay</span>: <span class="val">80</span>  },
+    { <span class="attr">text</span>: <span class="str">'Memory: 512MB SDRAM ... verified'</span>,    <span class="attr">delay</span>: <span class="val">60</span>  },
+    { <span class="attr">text</span>: <span class="str">'IDE0: WDC WD800JB-00JJA0 (80GB)'</span>,     <span class="attr">delay</span>: <span class="val">70</span>  },
+    { <span class="attr">text</span>: <span class="str">'Loading GRUB...'</span>,                    <span class="attr">delay</span>: <span class="val">200</span> },
+    { <span class="attr">text</span>: <span class="str">''</span>,                                   <span class="attr">delay</span>: <span class="val">100</span> },
+    { <span class="attr">text</span>: <span class="str">':: Arch Linux (kernel 2.6.32-arch)'</span>,  <span class="attr">delay</span>: <span class="val">150</span> },
+    { <span class="attr">text</span>: <span class="str">'   [OK] net.eth0'</span>,                    <span class="attr">delay</span>: <span class="val">60</span>  },
+    { <span class="attr">text</span>: <span class="str">'   [OK] sound.alsa'</span>,                  <span class="attr">delay</span>: <span class="val">50</span>  },
+    { <span class="attr">text</span>: <span class="str">'   [OK] daemon.sshd'</span>,                 <span class="attr">delay</span>: <span class="val">50</span>  },
+    { <span class="attr">text</span>: <span class="str">''</span>,                                   <span class="attr">delay</span>: <span class="val">80</span>  },
+    { <span class="attr">text</span>: <span class="str">'login: architect'</span>,                   <span class="attr">delay</span>: <span class="val">300</span> },
+    { <span class="attr">text</span>: <span class="str">'password: ********'</span>,                 <span class="attr">delay</span>: <span class="val">200</span> },
+    { <span class="attr">text</span>: <span class="str">''</span>,                                   <span class="attr">delay</span>: <span class="val">100</span> },
+    { <span class="attr">text</span>: <span class="str">'$ cat /etc/motd'</span>,                    <span class="attr">delay</span>: <span class="val">200</span> },
+    { <span class="attr">text</span>: <span class="str">''</span>,                                   <span class="attr">delay</span>: <span class="val">80</span>  },
+    { <span class="attr">text</span>: <span class="str">'  "Close the world, open the nExt."'</span>, <span class="attr">delay</span>: <span class="val">150</span> },
+    { <span class="attr">text</span>: <span class="str">''</span>,                                   <span class="attr">delay</span>: <span class="val">100</span> },
+    { <span class="attr">text</span>: <span class="str">'$ startx --manifest'</span>,                <span class="attr">delay</span>: <span class="val">400</span> },
+];
+
+<span class="kw">const</span> bootText    = document.<span class="fn">getElementById</span>(<span class="str">'bootText'</span>);
+<span class="kw">const</span> bootScreen  = document.<span class="fn">getElementById</span>(<span class="str">'bootScreen'</span>);
+<span class="kw">const</span> mainContent = document.<span class="fn">getElementById</span>(<span class="str">'mainContent'</span>);
+
+<span class="kw">async function</span> <span class="fn">runBoot</span>() {
+    <span class="kw">let</span> fullText = <span class="str">''</span>;
+
+    <span class="kw">for</span> (<span class="kw">const</span> line <span class="kw">of</span> bootLines) {
+        fullText += line.text + <span class="str">'\n'</span>;
+        bootText.innerHTML =
+            fullText + <span class="str">'&lt;span class="cursor-blink"&gt;█&lt;/span&gt;'</span>;
+
+        <span class="kw">await new</span> <span class="fn">Promise</span>(r =&gt; <span class="fn">setTimeout</span>(r, line.delay));
+    }
+
+    <span class="kw">await new</span> <span class="fn">Promise</span>(r =&gt; <span class="fn">setTimeout</span>(r, <span class="val">500</span>));
+
+    bootScreen.classList.<span class="fn">add</span>(<span class="str">'hidden'</span>);
+    mainContent.classList.<span class="fn">add</span>(<span class="str">'visible'</span>);
+}
+
+<span class="fn">runBoot</span>();</pre>
+      </div>
+      <div class="explain">
+        <strong>bootLines:</strong> array de objetos com o texto e o delay de cada linha. O delay variado cria o efeito de tempo real. <strong>async function:</strong> marca a função para poder usar <em>await</em>. <strong>await new Promise(r => setTimeout(r, ms)):</strong> pausa a execução por <em>ms</em> milissegundos sem travar o browser — é o "sleep" do JavaScript. <strong>innerHTML:</strong> injeta HTML direto no elemento — por isso o cursor com <code>&lt;span class="cursor-blink"&gt;</code> funciona. <strong>classList.add('hidden'):</strong> adiciona a classe que vai apagar o boot via CSS. <strong>classList.add('visible'):</strong> adiciona a classe que vai revelar o site.
+      </div>
+    </div>
+  </div>
+
+  <!-- PASSO 14 -->
+  <div class="step-card fade-in">
+    <div class="step-header">
+      <div class="step-number">14</div>
+      <div class="step-info">
+        <div class="step-title">JS — Scroll Progress</div>
+        <p class="step-desc">Terceiro bloco. Calcula quantos % da página foram rolados e atualiza a largura da barra.</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="file-badge js">⚡ script.js</div>
+      <div class="add-block">
+        <div class="add-header">+ adicione após a boot sequence</div>
+        <pre><span class="cmt">// """SCROLL PROGRESS</span>
+
+window.<span class="fn">addEventListener</span>(<span class="str">'scroll'</span>, () =&gt; {
+    <span class="kw">const</span> scrollTop    = document.documentElement.scrollTop;
+    <span class="kw">const</span> scrollHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
+    <span class="kw">const</span> progress = (scrollTop / scrollHeight) * <span class="val">100</span>;
+
+    document.<span class="fn">getElementById</span>(<span class="str">'scrollProgress'</span>).style.width =
+        progress + <span class="str">'%'</span>;
+});</pre>
+      </div>
+      <div class="explain">
+        <strong>scrollTop:</strong> quantos pixels já foram rolados desde o topo. <strong>scrollHeight - innerHeight:</strong> a altura total rolável (total do documento menos o que aparece na tela). Se não subtrair <em>innerHeight</em>, a barra nunca chega a 100% porque quando o final da página aparece, o <em>scrollTop</em> ainda não atingiu o <em>scrollHeight</em> completo. <strong>* 100:</strong> converte a fração para porcentagem. <strong>style.width:</strong> atualiza a largura do div diretamente via JavaScript — o CSS <em>transition: width 0.1s</em> que colocamos antes suaviza o movimento.
+      </div>
+    </div>
+  </div>
+
+  <!-- PASSO 15 -->
+  <div class="step-card fade-in">
+    <div class="step-header">
+      <div class="step-number">15</div>
+      <div class="step-info">
+        <div class="step-title">JS — IntersectionObserver (Fade-in)</div>
+        <p class="step-desc">Quarto e último bloco. Monitora as seções e adiciona .visible quando entram na tela.</p>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="file-badge js">⚡ script.js</div>
+      <div class="add-block">
+        <div class="add-header">+ adicione ao final do arquivo</div>
+        <pre><span class="cmt">// """FADE-IN NO SCROLL — IntersectionObserver</span>
+
+<span class="kw">const</span> observer = <span class="kw">new</span> <span class="fn">IntersectionObserver</span>((entries) =&gt; {
+    entries.<span class="fn">forEach</span>(entry =&gt; {
+        <span class="kw">if</span> (entry.isIntersecting) {
+            entry.target.classList.<span class="fn">add</span>(<span class="str">'visible'</span>);
+        }
+    });
+}, { <span class="attr">threshold</span>: <span class="val">0.1</span> });
+
+document.<span class="fn">querySelectorAll</span>(<span class="str">'.fade-section'</span>)
+    .<span class="fn">forEach</span>(el =&gt; observer.<span class="fn">observe</span>(el));</pre>
+      </div>
+      <div class="explain">
+        <strong>IntersectionObserver:</strong> uma API que avisa quando um elemento entra ou sai da viewport — muito mais eficiente que escutar o evento <em>scroll</em> e calcular posições manualmente. <strong>threshold: 0.1:</strong> dispara quando 10% do elemento fica visível na tela. <strong>entry.isIntersecting:</strong> booleano — <em>true</em> se o elemento está visível, <em>false</em> se saiu. <strong>classList.add('visible'):</strong> adiciona a classe que o CSS usa para fazer o fade-in (opacity: 1, transform: translateY(0)). <strong>querySelectorAll + forEach:</strong> seleciona todos os <em>.fade-section</em> de uma vez e registra cada um no observer.
+      </div>
+    </div>
+  </div>
+
+  <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
+
+  <!-- CHECKLIST -->
+  <div class="checklist fade-in">
+    <div class="checklist-title">// resumo — o que foi adicionado</div>
+    <div class="checklist-item"><span class="check">[✓]</span> <strong>HTML Passo 01–02:</strong> crt-overlay e noise logo após &lt;body&gt;</div>
+    <div class="checklist-item"><span class="check">[✓]</span> <strong>HTML Passo 03–04:</strong> scroll-progress e ambient-glow na sequência</div>
+    <div class="checklist-item"><span class="check">[✓]</span> <strong>HTML Passo 05:</strong> boot-screen com boot-text dentro</div>
+    <div class="checklist-item"><span class="check">[✓]</span> <strong>HTML Passo 06:</strong> main-wrapper envolvendo TODO o conteúdo</div>
+    <div class="checklist-item"><span class="check">[✓]</span> <strong>HTML Passo 07:</strong> fade-section em todas as sections e no nav</div>
+    <div class="checklist-item"><span class="check">[✓]</span> <strong>CSS Passo 08:</strong> .crt-overlay com ::before (scanlines) e ::after (vignette)</div>
+    <div class="checklist-item"><span class="check">[✓]</span> <strong>CSS Passo 09:</strong> .noise, .scroll-progress, .ambient-glow</div>
+    <div class="checklist-item"><span class="check">[✓]</span> <strong>CSS Passo 10:</strong> .boot-screen, .boot-screen.hidden, .main-wrapper</div>
+    <div class="checklist-item"><span class="check">[✓]</span> <strong>CSS Passo 11:</strong> @keyframes flicker + blink, .cursor-blink, .fade-section</div>
+    <div class="checklist-item"><span class="check">[✓]</span> <strong>JS Passo 12:</strong> noise generator com Canvas API</div>
+    <div class="checklist-item"><span class="check">[✓]</span> <strong>JS Passo 13:</strong> boot sequence com async/await</div>
+    <div class="checklist-item"><span class="check">[✓]</span> <strong>JS Passo 14:</strong> scroll progress com addEventListener</div>
+    <div class="checklist-item"><span class="check">[✓]</span> <strong>JS Passo 15:</strong> fade-in com IntersectionObserver</div>
+  </div>
+
+  <footer class="guide-footer">
+    <div class="glyph">⟁</div>
+    <p>etapa 04 de 05 — efeitos especiais</p>
+    <p style="margin-top: 0.4rem; color: #2a2a36;">jouiARCH-TECTURE . tutorial</p>
+  </footer>
+
+</div>
+
+<script>
+window.addEventListener('scroll', () => {
+  const t = document.documentElement.scrollTop;
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  document.getElementById('scrollBar').style.width = (t / h) * 100 + '%';
+});
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+</script>
+
+</body>
+</html>

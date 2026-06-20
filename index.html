@@ -7,6 +7,15 @@
         <link rel="stylesheet" href="style.css">
     </head>
     <body>
+        <div class="crt-overlay"></div>
+        <div class="noise" id="noise"></div>
+        <div class="scroll-progress" id="scrollProgress"></div>
+        <div class="ambient-glow"></div>
+        <div class="boot-screen" id="bootScreen">
+            <div class="boot-text" id="bootText"></div>
+        </div>
+
+    <div class="main-wrapper" id="mainContent">
 
         <!-- ¨¨HEADER -->
         <header>
@@ -33,7 +42,7 @@
         <main>
 
             <!-- Seção 01: O Arquétipo -->
-            <section id="arquetipo">
+            <section id="arquetipo" class="fade-section">
                 <div class="section-label">// 001</div>
                 <h2><span class="hash">#</span> O Arquétipo</h2>
 
@@ -53,7 +62,7 @@
             <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
 
             <!-- Seção 02: Os Pilares -->
-            <section id="pilares">
+            <section id="pilares" class="fade-section">
                 <div class="section-label">// 002</div>
                 <h2><span class="hash">#</span> Os Pilares</h2>
 
@@ -95,7 +104,7 @@
             </section>
 
             <!-- Seção 03: A Atmosfera -->
-            <section id="atmosfera">
+            <section id="atmosfera" class="fade-section">
                 <div class="section-label">// 003</div>
                 <h2><span class="hash">#</span> A Atmosfera</h2>
 
@@ -115,7 +124,7 @@
             <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
 
             <!-- Seção 04: Mídia canônica -->
-            <section id="midia">
+            <section id="midia" class="fade-section">
                 <div class="section-lavel">// 004</div>
                 <h2><span class="hash">#</span> Mídia Canônica</h2>
 
@@ -179,7 +188,7 @@
             <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
 
             <!-- Seção 05: O Som -->
-            <section id="som">
+            <section id="som" class="fade-section">
                 <div class="section-label">// 05</div>
                 <h2><span class="hash">#</span> O Som</h2>
                 <p>
@@ -227,7 +236,7 @@
             <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
 
             <!-- Seção 06: A Cultura Viva -->
-            <section id="cultura">
+            <section id="cultura" class="fade-section">
                     <div class="section-label">// 006</div>
                     <h2><span class="hash">#</span> A Cultura Viva</h2>
 
@@ -255,7 +264,7 @@
             <div class="ascii-divider">· · · ─── ·𖥸· ─── · · ·</div>
 
             <!-- Seção 07: Definição Final -->
-            <section id="definicao">
+            <section id="definicao" class="fade-section">
                 <div class="section-label">// 007</div>
                 <h2<span class="hash">#</span> Definição final</h2>
 
@@ -285,6 +294,8 @@
           <p>the jouiARCH-TECTURE manifesto v0.3</p>
           <p>close the world . open the nExt</p>
         </footer>
+
+    </div>
 
         <!-- Script Externo -->
         <script src="script.js"></script>
